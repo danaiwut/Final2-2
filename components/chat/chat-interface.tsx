@@ -109,6 +109,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
 
     loadMessages()
 
+    // Subscribe to all new messages in this conversation
     const channel = supabase
       .channel(`chat:${selectedConversation}`)
       .on(
@@ -117,11 +118,29 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
           event: "INSERT",
           schema: "public",
           table: "chat_messages",
-          filter: `sender_id=eq.${otherParticipant?.id}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new])
-          scrollToBottom()
+          const newMsg = payload.new as any
+          // Only add message if it belongs to this conversation
+          if (
+            (newMsg.sender_id === currentUserId && newMsg.receiver_id === otherParticipant?.id) ||
+            (newMsg.sender_id === otherParticipant?.id && newMsg.receiver_id === currentUserId)
+          ) {
+            setMessages((prev) => {
+              // Prevent duplicates
+              if (prev.some(m => m.id === newMsg.id)) return prev
+              return [...prev, newMsg]
+            })
+            scrollToBottom()
+            
+            // Mark as read if from other participant
+            if (newMsg.sender_id === otherParticipant?.id) {
+              supabase
+                .from("chat_messages")
+                .update({ is_read: true })
+                .eq("id", newMsg.id)
+            }
+          }
         },
       )
       .subscribe()
@@ -172,9 +191,30 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
 
       const { message: newMessage } = await response.json()
 
-      setMessages((prev) => [...prev, newMessage])
+      setMessages((prev) => {
+        // Prevent duplicates
+        if (prev.some(m => m.id === newMessage.id)) return prev
+        return [...prev, newMessage]
+      })
       setMessage("")
       scrollToBottom()
+
+      // Update conversation timestamp
+      if (selectedConversation) {
+        await supabase
+          .from("chat_conversations")
+          .update({ last_message_at: new Date().toISOString() })
+          .eq("id", selectedConversation)
+        
+        // Update local conversations list
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === selectedConversation
+              ? { ...conv, last_message_at: new Date().toISOString() }
+              : conv
+          ).sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
+        )
+      }
     } catch (error) {
       console.error("Error sending message:", error)
       alert("Failed to send message. Please try again.")
@@ -225,7 +265,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search conversations..."
+              placeholder="Search name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -355,12 +395,12 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                         <div key={msg.id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
                           <div
                             className={`max-w-[85%] md:max-w-[70%] rounded-lg p-3 ${
-                              isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                              isOwn ? "bg-[#A07850] text-white" : "bg-[#F5EDE2] border border-[#D4B896]"
                             }`}
                           >
                             <p className="text-sm break-words">{msg.message}</p>
                             <p
-                              className={`text-xs mt-1 ${isOwn ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                              className={`text-xs mt-1 ${isOwn ? "text-white/70" : "text-[#6B4C30]"}`}
                             >
                               {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                             </p>

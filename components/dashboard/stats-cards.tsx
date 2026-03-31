@@ -7,16 +7,16 @@ interface StatsCardsProps {
 
 export function StatsCards({ personasCount }: StatsCardsProps) {
   return (
-    <Card className="overflow-hidden border-2 transition-all hover:shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-gradient-to-br from-primary/10 to-primary/5 pb-4">
-        <CardTitle className="text-base font-semibold">Active Personas</CardTitle>
-        <div className="rounded-full bg-primary/10 p-2">
-          <Users className="h-5 w-5 text-primary" />
+    <Card className="overflow-hidden border border-[#D4B896] bg-[#F5EDE2] transition-all">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle className="font-['Playfair_Display'] text-base font-semibold text-[#3B2A1A]">Active Personas</CardTitle>
+        <div className="rounded bg-[#A07850] p-2">
+          <Users className="h-5 w-5 text-white" />
         </div>
       </CardHeader>
       <CardContent className="pt-6">
-        <div className="text-4xl font-bold tracking-tight">{personasCount}</div>
-        <p className="mt-2 text-sm text-muted-foreground"> personalities configured</p>
+        <div className="font-['Playfair_Display'] text-4xl font-bold tracking-tight text-[#A07850]">{personasCount}</div>
+        <p className="mt-2 text-sm text-[#6B4C30]">personalities configured</p>
       </CardContent>
     </Card>
   )

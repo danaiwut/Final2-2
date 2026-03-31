@@ -14,11 +14,38 @@ interface AdminAnalyticsChartsProps {
 }
 
 export function AdminAnalyticsCharts({ data, users, personas, messages }: AdminAnalyticsChartsProps) {
-  // User growth data
-  const userGrowthData = users.slice(-30).map((user, index) => ({
-    date: format(new Date(user.created_at), "MMM dd"),
-    users: index + 1,
-  }))
+  // User growth data - จัดกลุ่มตามวันที่และนับสะสม
+  const userGrowthData = (() => {
+    // เรียงลำดับผู้ใช้ตามวันที่สร้าง
+    const sortedUsers = [...users].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+
+    // จัดกลุ่มผู้ใช้ตามวันที่
+    const usersByDate = sortedUsers.reduce((acc, user) => {
+      const date = format(new Date(user.created_at), "yyyy-MM-dd")
+      if (!acc[date]) {
+        acc[date] = 0
+      }
+      acc[date]++
+      return acc
+    }, {} as Record<string, number>)
+
+    // สร้างข้อมูลสะสมและเรียงลำดับวันที่
+    let cumulativeCount = 0
+    const chartData = Object.keys(usersByDate)
+      .sort()
+      .map((date) => {
+        cumulativeCount += usersByDate[date]
+        return {
+          date: format(new Date(date), "MMM dd"),
+          users: cumulativeCount,
+        }
+      })
+
+    // เอาแค่ 30 วันล่าสุด
+    return chartData.slice(-30)
+  })()
 
   // Persona visibility distribution
   const personaVisibilityData = [
@@ -27,8 +54,8 @@ export function AdminAnalyticsCharts({ data, users, personas, messages }: AdminA
   ]
 
   const PERSONA_COLORS = {
-    Published: "hsl(200, 100%, 50%)", // Blue
-    Private: "hsl(330, 100%, 70%)", // Pink
+    Published: "hsl(200, 100%, 50%)", 
+    Private: "hsl(330, 100%, 70%)", 
   }
 
   return (

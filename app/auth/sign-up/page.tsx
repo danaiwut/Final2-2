@@ -33,7 +33,7 @@ export default function SignUpPage() {
       setIsLoading(false)
       return
     }
-
+    // push to supabase auth sign up
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -55,26 +55,20 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden p-6">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute left-1/4 top-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute right-1/4 bottom-1/4 h-[300px] w-[300px] rounded-full bg-blue-500/10 blur-3xl" />
-      </div>
-
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden p-6 bg-[#FDFAF6]">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
-        <div className="animate-fade-in mb-8 text-center opacity-0">
-          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold">
-            <Sparkles className="h-6 w-6 text-primary" />
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">
+            <Sparkles className="h-6 w-6 text-[#A07850]" />
             Smart Persona
           </Link>
         </div>
 
-        <Card className="animate-scale-in border-2 opacity-0 shadow-xl">
+        <Card className="border border-[#D4B896] bg-[#F5EDE2]">
           <CardHeader className="space-y-3 text-center">
-            <CardTitle className="text-3xl font-bold">Create Your Account</CardTitle>
-            <CardDescription className="text-base">Start building your professional identity today</CardDescription>
+            <CardTitle className="font-['Playfair_Display'] text-3xl font-bold text-[#3B2A1A]">Create Your Account</CardTitle>
+            <CardDescription className="text-base text-[#6B4C30]">Start building your professional identity today</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignUp} className="space-y-5">
@@ -144,7 +138,7 @@ export default function SignUpPage() {
               )}
 
               <Button type="submit" className="h-11 w-full text-base font-medium" disabled={isLoading}>
-                {isLoading ? "Creating your account..." : "Create Account"}
+                {isLoading ? "Creating your account" : "Create Account"}
               </Button>
             </form>
 

@@ -23,7 +23,7 @@ export default async function DashboardPage() {
   const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
       <DashboardHeader user={user} profile={profile} />
       <main className="flex-1 p-6">
         <div className="mx-auto max-w-6xl space-y-8">

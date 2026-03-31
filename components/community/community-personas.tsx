@@ -56,7 +56,7 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search personas by name, title, or description..."
+          placeholder="Search personas by name, title, or description"
           className="md:w-96"
         />
 

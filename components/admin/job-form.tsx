@@ -121,7 +121,7 @@ export function JobForm({ job }: JobFormProps) {
             <Label htmlFor="description">Job Description</Label>
             <Textarea
               id="description"
-              placeholder="Describe the role, responsibilities, and what you're looking for..."
+              placeholder="Describe the role"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={6}
@@ -134,7 +134,7 @@ export function JobForm({ job }: JobFormProps) {
               <Label htmlFor="industry">Industry</Label>
               <Input
                 id="industry"
-                placeholder="e.g., Technology, Healthcare"
+                placeholder=" Technology, Healthcare"
                 value={formData.industry}
                 onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
               />
@@ -164,7 +164,7 @@ export function JobForm({ job }: JobFormProps) {
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                placeholder="e.g., San Francisco, CA"
+                placeholder=" San Francisco, CA"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               />
@@ -192,7 +192,7 @@ export function JobForm({ job }: JobFormProps) {
                 type="number"
                 min="0"
                 step="1000"
-                placeholder="e.g., 80000"
+                placeholder="80000"
                 value={formData.salary_min}
                 onChange={(e) => setFormData({ ...formData, salary_min: Number.parseInt(e.target.value) || 0 })}
               />
@@ -205,7 +205,7 @@ export function JobForm({ job }: JobFormProps) {
                 type="number"
                 min="0"
                 step="1000"
-                placeholder="e.g., 120000"
+                placeholder="120000"
                 value={formData.salary_max}
                 onChange={(e) => setFormData({ ...formData, salary_max: Number.parseInt(e.target.value) || 0 })}
               />
@@ -217,7 +217,7 @@ export function JobForm({ job }: JobFormProps) {
             <Input
               id="application_url"
               type="url"
-              placeholder="https://..."
+              placeholder="https:"
               value={formData.application_url}
               onChange={(e) => setFormData({ ...formData, application_url: e.target.value })}
             />
@@ -301,7 +301,7 @@ export function JobForm({ job }: JobFormProps) {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? "Saving..." : job ? "Update Job" : "Post Job"}
+              {isLoading ? "Saving" : job ? "Update Job" : "Post Job"}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/admin/jobs")}>
               Cancel

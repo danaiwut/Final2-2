@@ -120,7 +120,7 @@ export default async function SavedJobsPage() {
                       {match.notes && (
                         <div className="mb-4 p-3 bg-muted rounded-md">
                           <p className="text-sm">
-                            <strong>Your notes:</strong> {match.notes}
+                            <strong>Your note</strong> {match.notes}
                           </p>
                         </div>
                       )}

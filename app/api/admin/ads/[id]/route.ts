@@ -27,7 +27,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Error updating ad:", error)
+    console.error("Error updating ad", error)
     return NextResponse.json({ error: "Failed to update ad" }, { status: 500 })
   }
 }
@@ -51,7 +51,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error deleting ad:", error)
+    console.error("Error deleting ad", error)
     return NextResponse.json({ error: "Failed to delete ad" }, { status: 500 })
   }
 }

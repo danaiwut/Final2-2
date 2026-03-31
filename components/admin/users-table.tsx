@@ -53,7 +53,7 @@ export function UsersTable({ users }: UsersTableProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Role update error:", error)
+      console.error(" Role update error", error)
       alert("Failed to update user role")
     } finally {
       setLoading(null)
@@ -79,13 +79,13 @@ export function UsersTable({ users }: UsersTableProps) {
       setEditName("")
       router.refresh()
     } catch (error) {
-      console.error("[v0] Name update error:", error)
+      console.error(" Name update error:", error)
       alert("Failed to update user name")
     } finally {
       setLoading(null)
     }
   }
-
+  //  search filter
   const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.toLowerCase()
     return (
@@ -100,11 +100,11 @@ export function UsersTable({ users }: UsersTableProps) {
       <Card>
         <CardHeader>
           <CardTitle>Users</CardTitle>
-          <CardDescription>Manage platform users and their roles</CardDescription>
+          <CardDescription>Manage platform users roles</CardDescription>
           <div className="relative mt-4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by name, email, or role..."
+              placeholder="Search name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -192,7 +192,7 @@ export function UsersTable({ users }: UsersTableProps) {
               Cancel
             </Button>
             <Button onClick={handleNameUpdate} disabled={loading === editingUser?.id || !editName.trim()}>
-              {loading === editingUser?.id ? "Updating..." : "Update Name"}
+              {loading === editingUser?.id ? "Updating" : "Update Name"}
             </Button>
           </DialogFooter>
         </DialogContent>

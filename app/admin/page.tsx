@@ -3,7 +3,6 @@ import { requireAdmin } from "@/lib/auth/admin"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminStatsCards } from "@/components/admin/admin-stats-cards"
 import { UsersTable } from "@/components/admin/users-table"
-import { SystemHealth } from "@/components/admin/system-health"
 import { AdminAnalyticsCharts } from "@/components/admin/admin-analytics-charts"
 
 export default async function AdminPage() {
@@ -48,12 +47,9 @@ export default async function AdminPage() {
             messages={allMessages || []}
           />
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className=" w-full">
             <div className="lg:col-span-2">
               <UsersTable users={allUsers || []} />
-            </div>
-            <div>
-              <SystemHealth />
             </div>
           </div>
         </div>

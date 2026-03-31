@@ -35,13 +35,13 @@ export async function POST(request: Request) {
       .eq("id", userId)
 
     if (updateError) {
-      console.error("[v0] Update name error:", updateError)
+      console.error(" Update name erro", updateError)
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Update user name error:", error)
+    console.error("Update user name error", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

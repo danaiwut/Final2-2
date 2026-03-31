@@ -69,13 +69,26 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
     setError(null)
 
     try {
+      let personaId = persona?.id
+
       if (persona) {
         const { error } = await supabase.from("personas").update(formData).eq("id", persona.id)
         if (error) throw error
       } else {
-        const { error } = await supabase.from("personas").insert([{ ...formData, user_id: userId }])
+        const { data, error } = await supabase.from("personas").insert([{ ...formData, user_id: userId }]).select().single()
         if (error) throw error
+        personaId = data?.id
       }
+
+      // Auto-create/update resume from persona data
+      if (personaId) {
+        await fetch("/api/resumes/from-persona", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ persona_id: personaId }),
+        })
+      }
+
       router.push("/dashboard/personas")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
@@ -276,7 +289,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Basic Information</h3>
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -298,13 +311,13 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                     {isGenerating ? "Fine-tuning" : " Fine Tune"}
                   </Button>
                 )}
-              </div>
+              </div> */}
             </div>
             <div className="space-y-2">
               <Label htmlFor="name">Persona Name</Label>
               <Input
                 id="name"
-                placeholder="e.g., Professional Assistant"
+                placeholder=" Professional Assistant"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -315,7 +328,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Describe the personality and purpose of this AI persona..."
+                placeholder="Describe"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
@@ -365,7 +378,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                       <Input
                         id="social_url"
                         type="url"
-                        placeholder="https://..."
+                        placeholder="https:"
                         value={newSocialLink.url}
                         onChange={(e) => setNewSocialLink({ ...newSocialLink, url: e.target.value })}
                         onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSocialLink())}
@@ -415,7 +428,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                 <Label htmlFor="career_title">Job Title</Label>
                 <Input
                   id="career_title"
-                  placeholder="e.g., Senior Software Engineer"
+                  placeholder=" Senior Software Engineer"
                   value={formData.career.title}
                   onChange={(e) => setFormData({ ...formData, career: { ...formData.career, title: e.target.value } })}
                 />
@@ -443,7 +456,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
               <Label htmlFor="industry">Industry</Label>
               <Input
                 id="industry"
-                placeholder="e.g., Technology, Healthcare, Finance"
+                placeholder=" Technology, Healthcare, Finance"
                 value={formData.career.industry}
                 onChange={(e) => setFormData({ ...formData, career: { ...formData.career, industry: e.target.value } })}
               />
@@ -482,7 +495,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                 <Label htmlFor="degree">Degree</Label>
                 <Input
                   id="degree"
-                  placeholder="e.g., Bachelor of Science"
+                  placeholder="Bachelor of Science"
                   value={formData.education.degree}
                   onChange={(e) =>
                     setFormData({ ...formData, education: { ...formData.education, degree: e.target.value } })
@@ -494,7 +507,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                 <Label htmlFor="field">Field of Study</Label>
                 <Input
                   id="field"
-                  placeholder="e.g., Computer Science"
+                  placeholder="Computer Science"
                   value={formData.education.field}
                   onChange={(e) =>
                     setFormData({ ...formData, education: { ...formData.education, field: e.target.value } })
@@ -508,7 +521,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                 <Label htmlFor="institution">Institution</Label>
                 <Input
                   id="institution"
-                  placeholder="e.g., Stanford University"
+                  placeholder="Stanford University"
                   value={formData.education.institution}
                   onChange={(e) =>
                     setFormData({ ...formData, education: { ...formData.education, institution: e.target.value } })
@@ -548,7 +561,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                   <Label htmlFor="project_title">Project Title</Label>
                   <Input
                     id="project_title"
-                    placeholder="e.g., E-commerce Platform"
+                    placeholder="E-commerce Platform"
                     value={newProject.title}
                     onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
                   />
@@ -557,7 +570,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                   <Label htmlFor="project_description">Description</Label>
                   <Textarea
                     id="project_description"
-                    placeholder="Describe the project..."
+                    placeholder="Describe the project"
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                     rows={3}
@@ -567,7 +580,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                   <Label htmlFor="project_technologies">Technologies (comma-separated)</Label>
                   <Input
                     id="project_technologies"
-                    placeholder="e.g., React, Node.js, PostgreSQL"
+                    placeholder="React, Node.js, SQL"
                     value={newProject.technologies}
                     onChange={(e) => setNewProject({ ...newProject, technologies: e.target.value })}
                   />
@@ -577,7 +590,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                   <Input
                     id="project_link"
                     type="url"
-                    placeholder="https://..."
+                    placeholder="https://"
                     value={newProject.link}
                     onChange={(e) => setNewProject({ ...newProject, link: e.target.value })}
                   />
@@ -622,7 +635,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                             rel="noopener noreferrer"
                             className="text-sm text-primary hover:underline"
                           >
-                            View Project →
+                            View Project 
                           </a>
                         )}
                       </CardContent>
@@ -703,7 +716,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                     type="number"
                     min="0"
                     step="1000"
-                    placeholder="e.g., 80000"
+                    placeholder="80000"
                     value={formData.job_preferences.salary_range.min}
                     onChange={(e) =>
                       setFormData({
@@ -728,7 +741,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
                     type="number"
                     min="0"
                     step="1000"
-                    placeholder="e.g., 120000"
+                    placeholder="120000"
                     value={formData.job_preferences.salary_range.max}
                     onChange={(e) =>
                       setFormData({
@@ -776,7 +789,7 @@ export function PersonaForm({ userId, persona }: PersonaFormProps) {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? "Saving..." : persona ? "Update Persona" : "Create Persona"}
+              {isLoading ? "Saving" : persona ? "Update Persona" : "Create Persona"}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/personas")}>
               Cancel

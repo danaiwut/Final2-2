@@ -70,7 +70,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Unfollow error:", error)
+    console.error("Unfollow error:", error)
     return NextResponse.json({ error: "Failed to unfollow user" }, { status: 500 })
   }
 }

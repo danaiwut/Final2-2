@@ -48,7 +48,7 @@ export default async function AdminAdsPage() {
               <p className="text-2xl font-bold">{totalClicks.toLocaleString()}</p>
             </div>
             <div className="rounded-lg border p-4">
-              <h3 className="text-sm font-medium text-muted-foreground">CTR</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Click Through Rate</h3>
               <p className="text-2xl font-bold">{ctr}%</p>
             </div>
           </div>

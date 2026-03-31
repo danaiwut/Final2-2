@@ -14,7 +14,6 @@ import { Plus, Edit, Trash2, Calendar } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 
-// Props สำหรับ AdsManager component
 interface AdsManagerProps {
   ads: any[]
   adminId: string
@@ -25,7 +24,6 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  // State สำหรับเก็บข้อมูล form โฆษณา
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -38,13 +36,11 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
   })
 
   useEffect(() => {
-    // ถ้ามี start_date และ end_date น้อยกว่า start_date ให้ปรับ end_date
     if (formData.start_date && formData.end_date && formData.end_date < formData.start_date) {
       setFormData((prev) => ({ ...prev, end_date: prev.start_date }))
     }
   }, [formData.start_date])
 
-  // ฟังก์ชันสำหรับส่งข้อมูล form (สร้างหรืออัปเดตโฆษณา)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -65,9 +61,8 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
     }
   }
 
-  // ฟังก์ชันสำหรับลบโฆษณา
   const handleDelete = async (id: string) => {
-    if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโฆษณานี้?")) return
+    if (!confirm("Are you sure you want to delete this ad?")) return
 
     const response = await fetch(`/api/admin/ads/${id}`, {
       method: "DELETE",
@@ -78,7 +73,6 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
     }
   }
 
-  // ฟังก์ชันสำหรับเปิดโหมดแก้ไขโฆษณา
   const handleEdit = (ad: any) => {
     setEditingId(ad.id)
     setFormData({
@@ -94,7 +88,6 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
     setIsCreating(true)
   }
 
-  // ฟังก์ชันสำหรับรีเซ็ต form
   const resetForm = () => {
     setFormData({
       title: "",
@@ -110,48 +103,43 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
 
   return (
     <div className="space-y-6">
-      {/* ปุ่มสร้างโฆษณา */}
       {!isCreating && (
         <Button onClick={() => setIsCreating(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          สร้างโฆษณา
+          Create Ad
         </Button>
       )}
 
-      {/* ฟอร์มสร้าง/แก้ไขโฆษณา */}
       {isCreating && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? "แก้ไขโฆษณา" : "สร้างโฆษณาใหม่"}</CardTitle>
+            <CardTitle>{editingId ? "Edit Advertisement" : "Create New Advertisement"}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* ชื่อโฆษณา */}
               <div className="space-y-2">
-                <Label>ชื่อโฆษณา</Label>
+                <Label>Ad Title</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="ใส่ชื่อโฆษณา"
+                  placeholder="Enter ad title"
                   required
                 />
               </div>
 
-              {/* คำอธิบาย */}
               <div className="space-y-2">
-                <Label>คำอธิบาย</Label>
+                <Label>Description</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="อธิบายรายละเอียดโฆษณา"
+                  placeholder="Describe the advertisement"
                   rows={3}
                 />
               </div>
 
-              {/* URL รูปภาพและลิงก์ */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>URL รูปภาพ</Label>
+                  <Label>Image URL</Label>
                   <Input
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
@@ -160,7 +148,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>ลิงก์โฆษณา</Label>
+                  <Label>Ad Link</Label>
                   <Input
                     value={formData.link_url}
                     onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
@@ -169,9 +157,8 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 </div>
               </div>
 
-              {/* ตำแหน่งแสดงโฆษณา */}
               <div className="space-y-2">
-                <Label>ตำแหน่งแสดงโฆษณา</Label>
+                <Label>Ad Placement</Label>
                 <Select
                   value={formData.placement}
                   onValueChange={(value) => setFormData({ ...formData, placement: value })}
@@ -180,9 +167,9 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sidebar">Sidebar (แถบด้านข้าง)</SelectItem>
-                    <SelectItem value="banner">Banner (แบนเนอร์ด้านบน)</SelectItem>
-                    <SelectItem value="feed">Feed (ในฟีด)</SelectItem>
+                    <SelectItem value="sidebar">Sidebar</SelectItem>
+                    <SelectItem value="banner">Top Banner</SelectItem>
+                    <SelectItem value="feed">Feed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -190,11 +177,12 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
               <div className="space-y-4">
                 <Label className="text-base font-semibold flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  ระยะเวลาแสดงโฆษณา
+                  Display Duration
                 </Label>
+
                 <div className="grid gap-4 md:grid-cols-2 p-4 bg-muted/50 rounded-lg">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">วันที่เริ่มต้น</Label>
+                    <Label className="text-sm font-medium">Start Date</Label>
                     <Input
                       type="date"
                       value={formData.start_date}
@@ -204,13 +192,13 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                     />
                     {formData.start_date && (
                       <p className="text-xs text-muted-foreground">
-                        เริ่ม: {format(new Date(formData.start_date), "dd MMM yyyy")}
+                        Start: {format(new Date(formData.start_date), "dd MMM yyyy")}
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">วันที่สิ้นสุด</Label>
+                    <Label className="text-sm font-medium">End Date</Label>
                     <Input
                       type="date"
                       value={formData.end_date}
@@ -221,39 +209,36 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                     />
                     {formData.end_date && (
                       <p className="text-xs text-muted-foreground">
-                        สิ้นสุด: {format(new Date(formData.end_date), "dd MMM yyyy")}
+                        End: {format(new Date(formData.end_date), "dd MMM yyyy")}
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* แสดงระยะเวลาทั้งหมด */}
                 {formData.start_date && formData.end_date && (
                   <div className="text-sm text-center p-3 bg-primary/10 rounded-lg">
-                    <span className="font-medium">ระยะเวลาแสดง: </span>
+                    <span className="font-medium">Total Duration: </span>
                     <span className="text-primary font-semibold">
                       {Math.ceil(
                         (new Date(formData.end_date).getTime() - new Date(formData.start_date).getTime()) /
                           (1000 * 60 * 60 * 24),
                       ) + 1}{" "}
-                      วัน
+                      days
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* สวิตช์เปิด/ปิดโฆษณา */}
               <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg">
                 <Switch
                   checked={formData.is_active}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                 />
-                <Label>เปิดใช้งานโฆษณา</Label>
+                <Label>Activate Advertisement</Label>
               </div>
 
-              {/* ปุ่มบันทึกและยกเลิก */}
               <div className="flex gap-2">
-                <Button type="submit">{editingId ? "อัปเดต" : "สร้างโฆษณา"}</Button>
+                <Button type="submit">{editingId ? "Update" : "Create"}</Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -263,7 +248,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                     resetForm()
                   }}
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
               </div>
             </form>
@@ -271,7 +256,6 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
         </Card>
       )}
 
-      {/* รายการโฆษณาทั้งหมด */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {ads.map((ad) => (
           <Card key={ad.id}>
@@ -280,7 +264,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 <div>
                   <CardTitle className="text-lg">{ad.title}</CardTitle>
                   <Badge variant={ad.is_active ? "default" : "secondary"} className="mt-1">
-                    {ad.is_active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                    {ad.is_active ? "Active" : "Inactive"}
                   </Badge>
                 </div>
                 <div className="flex gap-1">
@@ -293,8 +277,8 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 </div>
               </div>
             </CardHeader>
+
             <CardContent className="space-y-2">
-              {/* รูปภาพโฆษณา */}
               {ad.image_url && (
                 <img
                   src={ad.image_url || "/placeholder.svg"}
@@ -303,31 +287,31 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 />
               )}
 
-              {/* คำอธิบาย */}
-              {ad.description && <p className="text-sm text-muted-foreground line-clamp-2">{ad.description}</p>}
+              {ad.description && (
+                <p className="text-sm text-muted-foreground line-clamp-2">{ad.description}</p>
+              )}
 
-              {/* สถิติและข้อมูล */}
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ตำแหน่ง:</span>
+                  <span className="text-muted-foreground">Placement:</span>
                   <span className="capitalize">{ad.placement}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ยอดแสดง:</span>
+                  <span className="text-muted-foreground">Impressions:</span>
                   <span>{ad.impressions || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ยอดคลิก:</span>
+                  <span className="text-muted-foreground">Clicks:</span>
                   <span>{ad.clicks || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">CTR:</span>
                   <span>{ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(2) : 0}%</span>
                 </div>
-                {/* แสดงวันที่ */}
+
                 {ad.start_date && ad.end_date && (
                   <div className="flex justify-between pt-2 border-t">
-                    <span className="text-muted-foreground">ระยะเวลา:</span>
+                    <span className="text-muted-foreground">Date Range:</span>
                     <span className="text-xs">
                       {format(new Date(ad.start_date), "dd/MM/yy")} - {format(new Date(ad.end_date), "dd/MM/yy")}
                     </span>

@@ -21,7 +21,7 @@ export function ExportPersonaButton({ persona, profile, variant = "outline", siz
     try {
       exportPersonaToPDF(persona, profile)
     } catch (error) {
-      console.error("[v0] Error exporting persona:", error)
+      console.error("Error exporting persona:", error)
     } finally {
       setIsExporting(false)
     }
@@ -30,7 +30,7 @@ export function ExportPersonaButton({ persona, profile, variant = "outline", siz
   return (
     <Button onClick={handleExport} variant={variant} size={size} disabled={isExporting}>
       <Download className="mr-2 h-4 w-4" />
-      {isExporting ? "Exporting..." : "Export PDF"}
+      {isExporting ? "Exporting" : "Export PDF"}
     </Button>
   )
 }

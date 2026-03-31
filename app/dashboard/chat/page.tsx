@@ -51,7 +51,7 @@ export default async function ChatPage({
   const initialConversationId = params.conversation || null
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
       <DashboardHeader user={user} profile={profile} />
       <main className="flex-1">
         <ChatInterface 

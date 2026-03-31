@@ -38,7 +38,7 @@ export default async function EditPersonaPage({ params }: { params: Promise<{ id
         <div className="mx-auto max-w-4xl space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Edit Persona</h1>
-            <p className="text-muted-foreground">Update your AI personality</p>
+            <p className="text-muted-foreground">Update your personality</p>
           </div>
 
           <PersonaVisibilitySettings personaId={persona.id} isPublic={isPublic} />

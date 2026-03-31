@@ -41,20 +41,20 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b border-[#D4B896] bg-[rgba(253,250,246,0.85)] backdrop-blur-[14px]">
       <div className="flex h-16 items-center justify-between px-6">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="text-xl font-bold">
+        <div className="flex items-center gap-6 h-full">
+          <Link href="/dashboard" className="font-['Playfair_Display'] text-xl font-bold text-[#3B2A1A] flex items-center">
             Smart Persona
           </Link>
-          <nav className="hidden items-center gap-4 md:flex">
+          <nav className="hidden items-center gap-4 md:flex h-full">
             <Link
               href="/dashboard"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
                 isActive("/dashboard") && pathname === "/dashboard"
-                  ? "text-foreground font-semibold"
-                  : "text-muted-foreground",
+                  ? "text-[#3B2A1A] font-semibold"
+                  : "text-[#6B4C30]",
               )}
             >
               Dashboard
@@ -62,17 +62,26 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
             <Link
               href="/dashboard/personas"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
-                isActive("/dashboard/personas") ? "text-foreground font-semibold" : "text-muted-foreground",
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
+                isActive("/dashboard/personas") ? "text-[#3B2A1A] font-semibold" : "text-[#6B4C30]",
               )}
             >
               Personas
             </Link>
             <Link
+              href="/dashboard/resumes"
+              className={cn(
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
+                isActive("/dashboard/resumes") ? "text-[#3B2A1A] font-semibold" : "text-[#6B4C30]",
+              )}
+            >
+              Resumes
+            </Link>
+            <Link
               href="/dashboard/jobs"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
-                isActive("/dashboard/jobs") ? "text-foreground font-semibold" : "text-muted-foreground",
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
+                isActive("/dashboard/jobs") ? "text-[#3B2A1A] font-semibold" : "text-[#6B4C30]",
               )}
             >
               Find Jobs
@@ -80,8 +89,8 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
             <Link
               href="/community"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
-                isActive("/community") ? "text-foreground font-semibold" : "text-muted-foreground",
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
+                isActive("/community") ? "text-[#3B2A1A] font-semibold" : "text-[#6B4C30]",
               )}
             >
               Community
@@ -89,8 +98,8 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
             <Link
               href="/dashboard/chat"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
-                isActive("/dashboard/chat") ? "text-foreground font-semibold" : "text-muted-foreground",
+                "text-[11px] uppercase tracking-[0.08em] transition-colors hover:text-[#A07850]",
+                isActive("/dashboard/chat") ? "text-[#3B2A1A] font-semibold" : "text-[#6B4C30]",
               )}
             >
               Chat

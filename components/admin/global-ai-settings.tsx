@@ -125,7 +125,7 @@ export function GlobalAISettings({ settings }: GlobalAISettingsProps) {
             <Label htmlFor="custom_instructions">Custom Instructions</Label>
             <Textarea
               id="custom_instructions"
-              placeholder="Add global instructions for all AI personas..."
+              placeholder="Add global instructions for all AI personas"
               value={formData.custom_instructions}
               onChange={(e) => setFormData({ ...formData, custom_instructions: e.target.value })}
               rows={4}
@@ -146,10 +146,10 @@ export function GlobalAISettings({ settings }: GlobalAISettingsProps) {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          {success && <p className="text-sm text-green-600">Settings saved successfully!</p>}
+          {success && <p className="text-sm text-green-600">Settings saved successfully</p>}
 
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Settings"}
+            {isLoading ? "Saving" : "Save Settings"}
           </Button>
         </form>
       </CardContent>

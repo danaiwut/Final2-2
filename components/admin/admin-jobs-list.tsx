@@ -37,8 +37,8 @@ export function AdminJobsList({ jobs }: AdminJobsListProps) {
       router.refresh()
       setDeletingId(null)
     } catch (error: any) {
-      console.error("Error deleting job:", error)
-      alert("Failed to delete job: " + error.message)
+      console.error("Error deleting job", error)
+      alert("Failed to delete job" + error.message)
     } finally {
       setIsDeleting(false)
     }

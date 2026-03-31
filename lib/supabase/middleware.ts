@@ -11,7 +11,7 @@ export async function updateSession(request: NextRequest) {
 
   // If environment variables are missing, skip auth checks and continue
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.log("[v0] Supabase environment variables not found in middleware, skipping auth")
+    console.log(" Supabase environment variables not found in middleware, skipping auth")
     return supabaseResponse
   }
 
@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
       },
     },
   })
-
+  // Get the user from Supabase Auth
   const {
     data: { user },
   } = await supabase.auth.getUser()

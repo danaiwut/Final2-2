@@ -120,7 +120,8 @@ export function JobsList({ jobs, personas, jobMatches, userId }: JobsListProps) 
     // Sort by match score
     return filtered.sort((a, b) => b.match_score - a.match_score)
   }, [jobs, selectedPersona, searchQuery, filter, personas, jobMatches])
-
+   
+    // Handle save job
   const handleSaveJob = async (jobId: string) => {
     setSavingJobId(jobId)
     try {
@@ -155,7 +156,7 @@ export function JobsList({ jobs, personas, jobMatches, userId }: JobsListProps) 
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search jobs by title, company, skills, or industry..."
+          placeholder="Search jobs by title, company, skills, or industry"
           className="w-full"
         />
 
@@ -217,6 +218,7 @@ export function JobsList({ jobs, personas, jobMatches, userId }: JobsListProps) 
                         {job.company} • {job.industry}
                       </CardDescription>
                     </div>
+                    {/* Save click */}
                     <Button
                       variant="ghost"
                       size="icon"

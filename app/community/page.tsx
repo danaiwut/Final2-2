@@ -81,13 +81,13 @@ export default async function CommunityPage() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
       <DashboardHeader user={user} profile={profile} />
       <main className="flex-1 p-6">
         <div className="mx-auto max-w-7xl space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">Community</h1>
-            <p className="text-muted-foreground">Discover personas and connect with professionals</p>
+            <h1 className="font-['Playfair_Display'] text-3xl font-bold text-[#3B2A1A]">Community</h1>
+            <p className="text-[#6B4C30]">Discover personas and connect with professionals</p>
           </div>
 
           <AdSpace placement="banner" />

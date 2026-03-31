@@ -1,0 +1,801 @@
+{
+    "info": {
+      "name": "Smart Persona API",
+      "description": "API Documentation for Smart Persona Platform - สามารถนำเข้าลงใน Postman ได้ทันที",
+      "version": "1.0.0",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": [
+        {
+          "key": "token",
+          "value": "{{auth_token}}",
+          "type": "string"
+        }
+      ]
+    },
+    "item": [
+      {
+        "name": "🔐 Authentication",
+        "item": [
+          {
+            "name": "Sign Up",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securePassword123\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/auth/sign-up",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "auth",
+                  "sign-up"
+                ]
+              },
+              "description": "ลงทะเบียนผู้ใช้ใหม่\n\nStatus Codes:\n- 200: Sign up successful\n- 400: Invalid email/password\n- 409: Email already exists"
+            }
+          },
+          {
+            "name": "Login",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securePassword123\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/auth/login",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "auth",
+                  "login"
+                ]
+              },
+              "description": "เข้าสู่ระบบ\n\nStatus Codes:\n- 200: Login successful (returns auth token)\n- 401: Invalid credentials\n- 404: User not found"
+            }
+          }
+        ]
+      },
+      {
+        "name": "📝 Community Posts",
+        "item": [
+          {
+            "name": "Create Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"userId\": \"user-uuid-here\",\n  \"title\": \"My First Post\",\n  \"content\": \"This is the content of my post\",\n  \"postType\": \"Text\",\n  \"personaId\": \"persona-uuid\",\n  \"tags\": [\"javascript\", \"web development\"],\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/posts",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "posts"
+                ]
+              },
+              "description": "สร้างโพสต์ใหม่ (จะอยู่ในสถานะ pending รอการอนุมัติ)\n\nStatus Codes:\n- 201: Post created successfully\n- 401: Unauthorized (token required)\n- 403: Forbidden (userId mismatch)\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Delete Post",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/posts/:id",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "posts",
+                  ":id"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "post-uuid-here",
+                    "description": "Post ID to delete"
+                  }
+                ]
+              },
+              "description": "ลบโพสต์ (เฉพาะเจ้าของโพสต์)\n\nStatus Codes:\n- 200: Post deleted successfully\n- 401: Unauthorized\n- 403: Forbidden (not the post owner)\n- 404: Post not found\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Get Post by ID",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/posts/:id",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "posts",
+                  ":id"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "post-uuid-here",
+                    "description": "Post ID"
+                  }
+                ]
+              },
+              "description": "ดึงข้อมูลโพสต์แบบละเอียด\n\nStatus Codes:\n- 200: Success\n- 404: Post not found"
+            }
+          }
+        ]
+      },
+      {
+        "name": "👤 Personas",
+        "item": [
+          {
+            "name": "Generate Persona with AI",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"industry\": \"Technology\",\n  \"experienceYears\": 5\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/persona/generate",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "persona",
+                  "generate"
+                ]
+              },
+              "description": "สร้าง Persona อัตโนมัติด้วย AI\n\nStatus Codes:\n- 200: Persona generated successfully\n- 401: Unauthorized\n- 500: Generation failed"
+            }
+          },
+          {
+            "name": "Fine-tune Persona",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"personaId\": \"persona-uuid\",\n  \"improvements\": \"Make the tone more friendly and add more humor\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/persona/fine-tune",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "persona",
+                  "fine-tune"
+                ]
+              },
+              "description": "ปรับแต่ง Persona ตามคำขอ\n\nStatus Codes:\n- 200: Persona fine-tuned\n- 401: Unauthorized\n- 500: Server error"
+            }
+          }
+        ]
+      },
+      {
+        "name": "💬 Chat & Messages",
+        "item": [
+          {
+            "name": "Send Chat Message",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"receiverId\": \"recipient-user-uuid\",\n  \"message\": \"Hello! How are you?\",\n  \"conversationId\": \"conversation-uuid\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/chat/send",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "chat",
+                  "send"
+                ]
+              },
+              "description": "ส่งข้อความแชท\n\nStatus Codes:\n- 200: Message sent successfully\n- 400: Missing message or receiver ID\n- 401: Unauthorized\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Start Conversation",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"userId\": \"your-user-uuid\",\n  \"recipientId\": \"recipient-user-uuid\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/chat/start",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "chat",
+                  "start"
+                ]
+              },
+              "description": "เริ่มการสนทนาใหม่\n\nStatus Codes:\n- 201: Conversation created\n- 401: Unauthorized\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Generate Message with AI",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"context\": \"Discussing project requirements\",\n  \"personaId\": \"persona-uuid\",\n  \"tone\": \"professional\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/messages/generate",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "messages",
+                  "generate"
+                ]
+              },
+              "description": "สร้างข้อความโดยใช้ AI ตามบุคลิกของ Persona\n\nStatus Codes:\n- 200: Message generated\n- 401: Unauthorized\n- 500: Generation failed"
+            }
+          }
+        ]
+      },
+      {
+        "name": "🛍️ Ads Management",
+        "item": [
+          {
+            "name": "Create Ad (Admin)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"title\": \"New Product Launch\",\n  \"description\": \"Check out our amazing new product\",\n  \"image_url\": \"https://example.com/ad.jpg\",\n  \"link_url\": \"https://example.com/product\",\n  \"placement\": \"sidebar\",\n  \"start_date\": \"2024-03-23\",\n  \"end_date\": \"2024-04-23\",\n  \"is_active\": true\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/ads",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "ads"
+                ]
+              },
+              "description": "สร้างโฆษณา (เฉพาะ Admin)\n\nStatus Codes:\n- 201: Ad created\n- 401: Unauthorized (admin token required)\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Update Ad (Admin)",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"title\": \"Updated Ad Title\",\n  \"is_active\": false\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/ads/:id",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "ads",
+                  ":id"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "ad-uuid-here"
+                  }
+                ]
+              },
+              "description": "แก้ไขโฆษณา\n\nStatus Codes:\n- 200: Ad updated\n- 401: Unauthorized\n- 404: Ad not found"
+            }
+          },
+          {
+            "name": "Delete Ad (Admin)",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/ads/:id",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "ads",
+                  ":id"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "ad-uuid-here"
+                  }
+                ]
+              },
+              "description": "ลบโฆษณา\n\nStatus Codes:\n- 200: Ad deleted\n- 401: Unauthorized\n- 404: Ad not found"
+            }
+          }
+        ]
+      },
+      {
+        "name": "🔍 Post Moderation (Admin)",
+        "item": [
+          {
+            "name": "Approve Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"action\": \"approve\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/posts/:id/moderate",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "posts",
+                  ":id",
+                  "moderate"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "post-uuid-here"
+                  }
+                ]
+              },
+              "description": "อนุมัติโพสต์เพื่อให้แสดงในชุมชน\n\nStatus Codes:\n- 200: Post approved\n- 401: Unauthorized\n- 403: Forbidden (admin only)\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Reject Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"action\": \"reject\",\n  \"reason\": \"Content violates community guidelines\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/posts/:id/moderate",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "posts",
+                  ":id",
+                  "moderate"
+                ],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "post-uuid-here"
+                  }
+                ]
+              },
+              "description": "ปฏิเสธโพสต์ (ต้องระบุเหตุผล)\n\nStatus Codes:\n- 200: Post rejected\n- 400: Missing rejection reason\n- 401: Unauthorized\n- 403: Forbidden (admin only)"
+            }
+          }
+        ]
+      },
+      {
+        "name": "👥 Community Interactions",
+        "item": [
+          {
+            "name": "Like Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"postId\": \"post-uuid\",\n  \"userId\": \"your-user-uuid\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/like",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "like"
+                ]
+              },
+              "description": "ให้ไลค์โพสต์\n\nStatus Codes:\n- 200: Like added/removed\n- 401: Unauthorized"
+            }
+          },
+          {
+            "name": "Add Comment",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"postId\": \"post-uuid\",\n  \"userId\": \"your-user-uuid\",\n  \"content\": \"Great post! I really enjoyed reading this.\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/comment",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "comment"
+                ]
+              },
+              "description": "เพิ่มคอมเมนต์บนโพสต์\n\nStatus Codes:\n- 201: Comment created\n- 401: Unauthorized\n- 500: Server error"
+            }
+          },
+          {
+            "name": "Share Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"postId\": \"post-uuid\",\n  \"userId\": \"your-user-uuid\",\n  \"platform\": \"twitter\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/community/share",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "community",
+                  "share"
+                ]
+              },
+              "description": "แชร์โพสต์ไปยังแพลตฟอร์มอื่น\n\nStatus Codes:\n- 200: Post shared\n- 401: Unauthorized"
+            }
+          }
+        ]
+      },
+      {
+        "name": "🔗 Follow & Endorsements",
+        "item": [
+          {
+            "name": "Follow User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"followerId\": \"your-user-uuid\",\n  \"followingId\": \"target-user-uuid\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/follow",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "follow"
+                ]
+              },
+              "description": "ติดตามผู้ใช้\n\nStatus Codes:\n- 200: User followed\n- 401: Unauthorized"
+            }
+          },
+          {
+            "name": "Endorse Skill",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"endorserId\": \"your-user-uuid\",\n  \"endorseeId\": \"target-user-uuid\",\n  \"skill\": \"JavaScript\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/endorsements",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "endorsements"
+                ]
+              },
+              "description": "รับรองทักษะของผู้ใช้\n\nStatus Codes:\n- 201: Endorsement added\n- 401: Unauthorized\n- 500: Server error"
+            }
+          }
+        ]
+      },
+      {
+        "name": "👨‍💼 Admin Management",
+        "item": [
+          {
+            "name": "Set User Role",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{super_admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"userId\": \"user-uuid-here\",\n  \"role\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/set-role",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "set-role"
+                ]
+              },
+              "description": "ตั้งบทบาทของผู้ใช้ (super_admin เท่านั้น)\n\nStatus Codes:\n- 200: Role updated\n- 401: Unauthorized\n- 403: Forbidden (super_admin only)"
+            }
+          },
+          {
+            "name": "Update User Name",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"userId\": \"user-uuid-here\",\n  \"fullName\": \"John Doe\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/admin/update-user-name",
+                "host": [
+                  "{{BASE_URL}}"
+                ],
+                "path": [
+                  "api",
+                  "admin",
+                  "update-user-name"
+                ]
+              },
+              "description": "อัปเดตชื่อผู้ใช้\n\nStatus Codes:\n- 200: Name updated\n- 401: Unauthorized\n- 500: Server error"
+            }
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "BASE_URL",
+        "value": "http://localhost:3000",
+        "type": "string",
+        "description": "Base URL ของ Smart Persona API - เปลี่ยนเป็น production URL เมื่อส่ง"
+      },
+      {
+        "key": "auth_token",
+        "value": "",
+        "type": "string",
+        "description": "Bearer token หลังจากเข้าสู่ระบบ ใช้ได้สำหรับ user ธรรมดา"
+      },
+      {
+        "key": "admin_token",
+        "value": "",
+        "type": "string",
+        "description": "Bearer token ของ admin account"
+      },
+      {
+        "key": "super_admin_token",
+        "value": "",
+        "type": "string",
+        "description": "Bearer token ของ super_admin account"
+      }
+    ]
+  }
+  
