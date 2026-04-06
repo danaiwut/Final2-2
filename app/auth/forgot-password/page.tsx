@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
     },
   })
 
-  const { formState: { isSubmitting, errors }, isSubmitSuccessful } = form
+  const { formState: { isSubmitting, errors, isSubmitSuccessful } } = form
 
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     try {
@@ -46,9 +46,9 @@ export default function ForgotPasswordPage() {
       toast.success("Reset link sent!", {
         description: "Please check your email for the password reset link.",
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error("An error occurred", {
-        description: error.message || "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
       })
     }
   }
@@ -114,23 +114,23 @@ export default function ForgotPasswordPage() {
               </Button>
             </form>
           ) : (
-             <div className="p-6 bg-blue-50 border border-blue-100 rounded-lg text-center space-y-3">
-               <div className="mx-auto w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                 <Mail className="w-6 h-6" />
-               </div>
-               <h3 className="text-lg font-semibold text-gray-900">Check your email</h3>
-               <p className="text-sm text-gray-600">
-                 We've sent a password reset link to <br/>
-                 <span className="font-medium text-gray-900">{form.getValues("email")}</span>
-               </p>
-               <Button 
-                 variant="outline" 
-                 className="mt-4 w-full"
-                 onClick={() => form.reset({ email: form.getValues("email") }, { keepValues: true, keepIsSubmitSuccessful: false })}
-               >
-                 Send again
-               </Button>
-             </div>
+            <div className="p-6 bg-blue-50 border border-blue-100 rounded-lg text-center space-y-3">
+              <div className="mx-auto w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <Mail className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Check your email</h3>
+              <p className="text-sm text-gray-600">
+                We've sent a password reset link to <br />
+                <span className="font-medium text-gray-900">{form.getValues("email")}</span>
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4 w-full"
+                onClick={() => form.reset()}
+              >
+                Send again
+              </Button>
+            </div>
           )}
         </div>
       </div>
