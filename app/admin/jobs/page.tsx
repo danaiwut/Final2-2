@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { requireAdmin } from "@/lib/auth/admin"
-import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminJobsList } from "@/components/admin/admin-jobs-list"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,15 +16,13 @@ export default async function AdminJobsPage() {
   const totalApplications = 0
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <AdminHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Job Management</h1>
-              <p className="text-muted-foreground">Manage job postings and applications</p>
-            </div>
+    <div className="p-6 md:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Job Management</h1>
+            <p className="text-sm text-[#9B8577]">Manage job postings and applications</p>
+          </div>
             <Button asChild>
               <Link href="/admin/jobs/new">
                 <Plus className="mr-2 h-4 w-4" />
@@ -65,8 +62,7 @@ export default async function AdminJobsPage() {
           </div>
 
           <AdminJobsList jobs={jobs || []} />
-        </div>
-      </main>
+      </div>
     </div>
   )
 }

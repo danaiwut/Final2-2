@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Plus, Edit, Trash2, Calendar } from "lucide-react"
+import { Plus, Edit, Trash2, Calendar, Target, ImageIcon, Link as LinkIcon, BarChart3 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 
@@ -43,7 +43,6 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     const endpoint = editingId ? `/api/admin/ads/${editingId}` : "/api/admin/ads"
     const method = editingId ? "PUT" : "POST"
 
@@ -102,146 +101,177 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {!isCreating && (
-        <Button onClick={() => setIsCreating(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Ad
-        </Button>
+        <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div>
+            <h3 className="font-semibold text-slate-800">Advertisement Campaigns</h3>
+            <p className="text-sm text-slate-500">Manage your active and inactive ad campaigns</p>
+          </div>
+          <Button onClick={() => setIsCreating(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Ad Campaign
+          </Button>
+        </div>
       )}
 
       {isCreating && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingId ? "Edit Advertisement" : "Create New Advertisement"}</CardTitle>
+        <Card className="border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6 pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                <Target className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">{editingId ? "Edit Advertisement" : "Create New Advertisement"}</CardTitle>
+                <CardDescription>Setup your ad copy, placement, and targeting dates.</CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label>Ad Title</Label>
-                <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Enter ad title"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the advertisement"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Image URL</Label>
-                  <Input
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Ad Link</Label>
-                  <Input
-                    value={formData.link_url}
-                    onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                    placeholder="https://example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Ad Placement</Label>
-                <Select
-                  value={formData.placement}
-                  onValueChange={(value) => setFormData({ ...formData, placement: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sidebar">Sidebar</SelectItem>
-                    <SelectItem value="banner">Top Banner</SelectItem>
-                    <SelectItem value="feed">Feed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Display Duration
-                </Label>
-
-                <div className="grid gap-4 md:grid-cols-2 p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Start Date</Label>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Left Column - Core Info */}
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium">Ad Title</Label>
                     <Input
-                      type="date"
-                      value={formData.start_date}
-                      onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                      className="bg-background"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. Summer Premium Discount"
+                      className="border-slate-200 focus-visible:ring-indigo-500"
                       required
                     />
-                    {formData.start_date && (
-                      <p className="text-xs text-muted-foreground">
-                        Start: {format(new Date(formData.start_date), "dd MMM yyyy")}
-                      </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium">Description</Label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Catchy description to attract users..."
+                      rows={4}
+                      className="border-slate-200 focus-visible:ring-indigo-500 resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-slate-400" />
+                      Image URL
+                    </Label>
+                    <Input
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      placeholder="https://example.com/image.jpg"
+                      className="border-slate-200 focus-visible:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium flex items-center gap-2">
+                      <LinkIcon className="h-4 w-4 text-slate-400" />
+                      Destination Link
+                    </Label>
+                    <Input
+                      value={formData.link_url}
+                      onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
+                      placeholder="https://example.com/offer"
+                      className="border-slate-200 focus-visible:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column - Settings */}
+                <div className="space-y-6 bg-slate-50/50 p-6 rounded-xl border border-slate-100">
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium flex items-center gap-2">
+                      <Target className="h-4 w-4 text-slate-400" />
+                      Ad Placement Area
+                    </Label>
+                    <Select
+                      value={formData.placement}
+                      onValueChange={(value) => setFormData({ ...formData, placement: value })}
+                    >
+                      <SelectTrigger className="border-slate-200 focus-visible:ring-indigo-500 bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sidebar">Right Sidebar</SelectItem>
+                        <SelectItem value="banner">Top Banner</SelectItem>
+                        <SelectItem value="feed">In-Feed Layout</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label className="text-slate-700 font-medium flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-slate-400" />
+                      Display Duration Schedule
+                    </Label>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</Label>
+                        <Input
+                          type="date"
+                          value={formData.start_date}
+                          onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                          className="bg-white border-slate-200"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date</Label>
+                        <Input
+                          type="date"
+                          value={formData.end_date}
+                          min={formData.start_date || undefined}
+                          onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                          className="bg-white border-slate-200"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {formData.start_date && formData.end_date && (
+                      <div className="flex items-center justify-between p-3 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-sm">
+                        <span className="font-medium">Total Campaign Duration</span>
+                        <span className="font-bold">
+                          {Math.ceil(
+                            (new Date(formData.end_date).getTime() - new Date(formData.start_date).getTime()) /
+                              (1000 * 60 * 60 * 24),
+                          ) + 1}{" "}
+                          days
+                        </span>
+                      </div>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">End Date</Label>
-                    <Input
-                      type="date"
-                      value={formData.end_date}
-                      min={formData.start_date || undefined}
-                      onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                      className="bg-background"
-                      required
-                    />
-                    {formData.end_date && (
-                      <p className="text-xs text-muted-foreground">
-                        End: {format(new Date(formData.end_date), "dd MMM yyyy")}
-                      </p>
-                    )}
+                  <div className="pt-4 border-t border-slate-200">
+                    <div className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                      <div className="space-y-0.5">
+                        <Label className="text-slate-800 font-semibold cursor-pointer" htmlFor="status-toggle">
+                          Campaign Status
+                        </Label>
+                        <p className="text-xs text-slate-500">Enable or disable this ad globally</p>
+                      </div>
+                      <Switch
+                        id="status-toggle"
+                        checked={formData.is_active}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                        className="data-[state=checked]:bg-green-500"
+                      />
+                    </div>
                   </div>
                 </div>
-
-                {formData.start_date && formData.end_date && (
-                  <div className="text-sm text-center p-3 bg-primary/10 rounded-lg">
-                    <span className="font-medium">Total Duration: </span>
-                    <span className="text-primary font-semibold">
-                      {Math.ceil(
-                        (new Date(formData.end_date).getTime() - new Date(formData.start_date).getTime()) /
-                          (1000 * 60 * 60 * 24),
-                      ) + 1}{" "}
-                      days
-                    </span>
-                  </div>
-                )}
               </div>
 
-              <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg">
-                <Switch
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-                <Label>Activate Advertisement</Label>
-              </div>
-
-              <div className="flex gap-2">
-                <Button type="submit">{editingId ? "Update" : "Create"}</Button>
+              <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
                 <Button
                   type="button"
                   variant="outline"
+                  className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   onClick={() => {
                     setIsCreating(false)
                     setEditingId(null)
@@ -250,70 +280,80 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 >
                   Cancel
                 </Button>
+                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]">
+                  {editingId ? "Save Changes" : "Launch Campaign"}
+                </Button>
               </div>
             </form>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Ads List Grid */}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {ads.map((ad) => (
-          <Card key={ad.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{ad.title}</CardTitle>
-                  <Badge variant={ad.is_active ? "default" : "secondary"} className="mt-1">
-                    {ad.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(ad)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(ad.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-2">
-              {ad.image_url && (
+          <Card key={ad.id} className="overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow group flex flex-col">
+            {/* Ad Image / Placeholder */}
+            <div className="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden border-b border-slate-100">
+              {ad.image_url ? (
                 <img
-                  src={ad.image_url || "/placeholder.svg"}
+                  src={ad.image_url}
                   alt={ad.title}
-                  className="w-full h-32 object-cover rounded"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+              ) : (
+                <ImageIcon className="h-10 w-10 text-slate-300" />
               )}
+              {/* Badges Overlay */}
+              <div className="absolute top-3 left-3 flex gap-2">
+                <Badge variant={ad.is_active ? "default" : "secondary"} className={ad.is_active ? "bg-green-500 hover:bg-green-600 shadow-sm" : "bg-slate-600 shadow-sm"}>
+                  {ad.is_active ? "Active" : "Paused"}
+                </Badge>
+                <Badge className="bg-white/90 text-slate-700 hover:bg-white border-none shadow-sm backdrop-blur-sm capitalize">
+                  {ad.placement}
+                </Badge>
+              </div>
+              
+              {/* Actions Overlay */}
+              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">
+                <Button variant="secondary" size="icon" className="h-8 w-8 bg-white hover:bg-slate-100 text-slate-700" onClick={() => handleEdit(ad)}>
+                  <Edit className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="destructive" size="icon" className="h-8 w-8 shadow-sm" onClick={() => handleDelete(ad.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
 
-              {ad.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">{ad.description}</p>
-              )}
+            <CardContent className="p-5 flex-1 flex flex-col">
+              <h3 className="font-bold text-slate-800 text-lg mb-1 line-clamp-1" title={ad.title}>{ad.title}</h3>
+              {ad.description && <p className="text-sm text-slate-500 line-clamp-2 mb-4">{ad.description}</p>}
 
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Placement:</span>
-                  <span className="capitalize">{ad.placement}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Impressions:</span>
-                  <span>{ad.impressions || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Clicks:</span>
-                  <span>{ad.clicks || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">CTR:</span>
-                  <span>{ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(2) : 0}%</span>
+              <div className="mt-auto space-y-4">
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-2 py-3 border-y border-slate-100">
+                  <div className="text-center">
+                    <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Views</p>
+                    <p className="font-semibold text-slate-700">{ad.impressions?.toLocaleString() || 0}</p>
+                  </div>
+                  <div className="text-center border-x border-slate-100">
+                    <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Clicks</p>
+                    <p className="font-semibold text-slate-700">{ad.clicks?.toLocaleString() || 0}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">CTR</p>
+                    <p className="font-semibold text-indigo-600">
+                      {ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(1) : 0}%
+                    </p>
+                  </div>
                 </div>
 
+                {/* Dates */}
                 {ad.start_date && ad.end_date && (
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-muted-foreground">Date Range:</span>
-                    <span className="text-xs">
-                      {format(new Date(ad.start_date), "dd/MM/yy")} - {format(new Date(ad.end_date), "dd/MM/yy")}
+                  <div className="flex items-center text-xs text-slate-500 gap-2">
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                    <span>
+                      {format(new Date(ad.start_date), "MMM d")} - {format(new Date(ad.end_date), "MMM d, yyyy")}
                     </span>
                   </div>
                 )}

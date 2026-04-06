@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { ActivePersonas } from "@/components/dashboard/active-personas"
 import { AdSpace } from "@/components/ads/ad-space"
+import { LayoutDashboard } from "lucide-react"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -16,26 +16,31 @@ export default async function DashboardPage() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
-
-  // Fetch user stats
   const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-6xl space-y-8">
-          <AdSpace placement="banner" />
-
-          <div className="space-y-6">
-            <StatsCards personasCount={personas?.length || 0} />
-
-            <ActivePersonas personas={personas || []} />
+    <div className="p-6 md:p-8">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F5EDE2]">
+            <LayoutDashboard className="h-5 w-5 text-[#A07850]" />
+          </div>
+          <div>
+            <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Dashboard</h1>
+            <p className="text-sm text-[#9B8577]">Overview of your Smart Persona workspace</p>
           </div>
         </div>
-      </main>
+      </div>
+
+      <div className="mb-6">
+        <AdSpace placement="banner" />
+      </div>
+
+      <div className="space-y-6">
+        <StatsCards personasCount={personas?.length || 0} />
+        <ActivePersonas personas={personas || []} />
+      </div>
     </div>
   )
 }

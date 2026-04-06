@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { ProfileView } from "@/components/profile/profile-view"
 import { ProfileStats } from "@/components/profile/profile-stats"
 
@@ -26,13 +25,10 @@ export default async function ProfilePage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-5xl space-y-6">
-          <ProfileView profile={profile} userId={user.id} />
-        </div>
-      </main>
+    <div className="p-6 md:p-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <ProfileView profile={profile} userId={user.id} />
+      </div>
     </div>
   )
 }

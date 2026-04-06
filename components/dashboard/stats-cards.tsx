@@ -1,23 +1,70 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users } from "lucide-react"
+import { Users, FileText, Briefcase, TrendingUp } from "lucide-react"
 
 interface StatsCardsProps {
   personasCount: number
 }
 
+const stats = (personasCount: number) => [
+  {
+    label: "Active Personas",
+    value: personasCount,
+    icon: Users,
+    color: "bg-[#A07850]",
+    lightColor: "bg-[#F5EDE2]",
+    textColor: "text-[#A07850]",
+    change: "+2 this week",
+  },
+  {
+    label: "Resumes Created",
+    value: "—",
+    icon: FileText,
+    color: "bg-[#7B9E87]",
+    lightColor: "bg-[#EBF3EE]",
+    textColor: "text-[#7B9E87]",
+    change: "Manage resumes",
+  },
+  {
+    label: "Jobs Tracked",
+    value: "—",
+    icon: Briefcase,
+    color: "bg-[#6B7FA3]",
+    lightColor: "bg-[#EBF0F8]",
+    textColor: "text-[#6B7FA3]",
+    change: "Find new jobs",
+  },
+  {
+    label: "Profile Views",
+    value: "—",
+    icon: TrendingUp,
+    color: "bg-[#A0507B]",
+    lightColor: "bg-[#F5EBF1]",
+    textColor: "text-[#A0507B]",
+    change: "This month",
+  },
+]
+
 export function StatsCards({ personasCount }: StatsCardsProps) {
   return (
-    <Card className="overflow-hidden border border-[#D4B896] bg-[#F5EDE2] transition-all">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="font-['Playfair_Display'] text-base font-semibold text-[#3B2A1A]">Active Personas</CardTitle>
-        <div className="rounded bg-[#A07850] p-2">
-          <Users className="h-5 w-5 text-white" />
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {stats(personasCount).map((stat) => (
+        <div
+          key={stat.label}
+          className="rounded-xl border border-[#E8DDD1] bg-white p-5 shadow-sm transition-all hover:shadow-md"
+        >
+          <div className="flex items-start justify-between">
+            <div className={`rounded-lg ${stat.lightColor} p-2.5`}>
+              <stat.icon className={`h-5 w-5 ${stat.textColor}`} />
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className={`font-['Playfair_Display'] text-3xl font-bold ${stat.textColor}`}>
+              {stat.value}
+            </p>
+            <p className="mt-1 text-sm font-medium text-[#3B2A1A]">{stat.label}</p>
+            <p className="mt-0.5 text-xs text-[#9B8577]">{stat.change}</p>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <div className="font-['Playfair_Display'] text-4xl font-bold tracking-tight text-[#A07850]">{personasCount}</div>
-        <p className="mt-2 text-sm text-[#6B4C30]">personalities configured</p>
-      </CardContent>
-    </Card>
+      ))}
+    </div>
   )
 }

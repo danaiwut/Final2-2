@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { ResumeEditor } from "@/components/resumes/resume-editor"
 
 export default async function EditResumePage({ params }: { params: { id: string } }) {
@@ -29,13 +28,10 @@ export default async function EditResumePage({ params }: { params: { id: string 
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-7xl">
-          <ResumeEditor resume={resume} />
-        </div>
-      </main>
+    <div className="p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
+        <ResumeEditor resume={resume} />
+      </div>
     </div>
   )
 }

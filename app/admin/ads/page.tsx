@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { isAdmin } from "@/lib/auth/admin"
-import { AdminHeader } from "@/components/admin/admin-header"
 import { AdsManager } from "@/components/admin/ads-manager"
 
 export default async function AdminAdsPage() {
@@ -29,14 +28,12 @@ export default async function AdminAdsPage() {
   const ctr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : "0"
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <AdminHeader />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">Ads Management</h1>
-            <p className="text-muted-foreground">Create and manage advertisements</p>
-          </div>
+    <div className="p-6 md:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div>
+          <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Ads Management</h1>
+          <p className="text-sm text-[#9B8577]">Create and manage advertisements</p>
+        </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border p-4">
@@ -54,8 +51,7 @@ export default async function AdminAdsPage() {
           </div>
 
           <AdsManager ads={ads || []} adminId={user.id} />
-        </div>
-      </main>
+      </div>
     </div>
   )
 }

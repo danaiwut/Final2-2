@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { ChatInterface } from "@/components/chat/chat-interface"
 
 export default async function ChatPage({
@@ -51,15 +50,18 @@ export default async function ChatPage({
   const initialConversationId = params.conversation || null
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FDFAF6]">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1">
-        <ChatInterface 
-          currentUserId={user.id} 
+    <div className="flex h-[calc(100vh)] flex-col">
+      <div className="border-b border-[#E8DDD1] bg-white px-6 py-4">
+        <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Chat</h1>
+        <p className="text-sm text-[#9B8577]">Messages and conversations</p>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <ChatInterface
+          currentUserId={user.id}
           initialConversations={conversationsWithProfiles}
           initialConversationId={initialConversationId}
         />
-      </main>
+      </div>
     </div>
   )
 }

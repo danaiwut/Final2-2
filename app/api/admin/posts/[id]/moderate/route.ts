@@ -12,7 +12,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Check if user is admin
+    // ========== SELECT ==========
+    // ดึงข้อมูล role ของ user จากตาราง profiles เพื่อตรวจสอบสิทธิ์ admin
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
 
     if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
@@ -23,7 +24,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { id: postId } = await params
 
     if (action === "approve") {
-      // Approve the post
+      // ========== UPDATE ==========
+      // อัปเดตสถานะ post เป็น "approved" และเปิด publish พร้อมบันทึกว่าใครรีวิวและเมื่อไหร่
       const { error } = await supabase
         .from("community_posts")
         .update({
@@ -45,7 +47,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Rejection reason required" }, { status: 400 })
       }
 
-      // Reject the post
+      // ========== UPDATE ==========
+      // อัปเดตสถานะ post เป็น "rejected" และปิด publish พร้อมบันทึกเหตุผลที่ปฏิเสธ
       const { error } = await supabase
         .from("community_posts")
         .update({

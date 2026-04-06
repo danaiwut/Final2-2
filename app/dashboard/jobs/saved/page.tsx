@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,14 +32,12 @@ export default async function SavedJobsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">Saved Jobs</h1>
-            <p className="text-muted-foreground">Your bookmarked job opportunities</p>
-          </div>
+    <div className="p-6 md:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div>
+          <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Saved Jobs</h1>
+          <p className="text-sm text-[#9B8577]">Your bookmarked job opportunities</p>
+        </div>
 
           {savedJobs && savedJobs.length > 0 ? (
             <div className="space-y-4">
@@ -109,7 +106,7 @@ export default async function SavedJobsPage() {
 
                       {job.skills && job.skills.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {job.skills.map((skill, i) => (
+                        {job.skills.map((skill: string, i: number) => (
                             <Badge key={i} variant="secondary">
                               {skill}
                             </Badge>
@@ -158,7 +155,6 @@ export default async function SavedJobsPage() {
             </Card>
           )}
         </div>
-      </main>
     </div>
   )
 }

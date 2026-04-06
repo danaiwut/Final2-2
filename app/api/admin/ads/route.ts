@@ -4,6 +4,8 @@ import { isAdmin } from "@/lib/auth/admin"
 
 export async function POST(request: Request) {
   try {
+    // ========== CONNECT ==========
+    // เชื่อมต่อ Supabase client และตรวจสอบ session ของ user ปัจจุบัน
     const supabase = await createClient()
     const {
       data: { user },
@@ -15,6 +17,8 @@ export async function POST(request: Request) {
 
     const body = await request.json()
 
+    // ========== INSERT ==========
+    // เพิ่มข้อมูล ad ใหม่เข้าตาราง ads แล้ว SELECT row ที่เพิ่งสร้างกลับมา
     const { data, error } = await supabase.from("ads").insert(body).select().single()
 
     if (error) throw error

@@ -9,6 +9,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     const { id } = await params
 
+    // ========== DELETE ==========
+    // ลบ post ออกจากตาราง community_posts โดยกรองจาก id ที่รับมา
     const { error } = await supabase.from("community_posts").delete().eq("id", id)
 
     if (error) throw error
