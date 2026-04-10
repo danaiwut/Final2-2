@@ -1,21 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from "@/lib/supabase/server"
+import { requireStandardUser } from "@/lib/auth/admin"
 import { PersonaForm } from "@/components/personas/persona-form"
 import { PersonaVisibilitySettings } from "@/components/personas/persona-visibility-settings"
 
 export default async function EditPersonaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const { user } = await requireStandardUser()
   const supabase = await createClient()
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-  if (error || !user) {
-    redirect("/auth/login")
-  }
-
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
 
   const { data: persona } = await supabase
     .from("personas")

@@ -14,6 +14,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
+  }
+
   const { data: resumes, error } = await supabase
     .from("resumes")
     .select("*")
@@ -38,6 +44,12 @@ export async function POST(request: Request) {
 
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
   }
 
   const body = await request.json()

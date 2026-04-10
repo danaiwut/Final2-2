@@ -14,6 +14,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const { data: profileRole } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profileRole?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot create resumes from personas" }, { status: 403 })
+  }
+
   const { persona_id } = await request.json()
 
   if (!persona_id) {

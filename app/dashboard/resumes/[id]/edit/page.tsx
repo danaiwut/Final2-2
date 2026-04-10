@@ -1,20 +1,12 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { requireStandardUser } from "@/lib/auth/admin"
 import { ResumeEditor } from "@/components/resumes/resume-editor"
 
 export default async function EditResumePage({ params }: { params: { id: string } }) {
+  const { user } = await requireStandardUser()
   const supabase = await createClient()
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-  
-  if (error || !user) {
-    redirect("/auth/login")
-  }
-
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
   const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
   
   const { data: resume } = await supabase

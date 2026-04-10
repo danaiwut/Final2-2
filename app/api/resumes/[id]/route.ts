@@ -1,8 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+type ResumeRouteContext = {
+  params: Promise<{ id: string }>
+}
+
 // GET - Fetch a specific resume
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: ResumeRouteContext) {
+  const { id } = await context.params
   const supabase = await createClient()
 
   const {
@@ -14,10 +19,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
+  }
+
   const { data: resume, error } = await supabase
     .from("resumes")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .single()
 
@@ -29,7 +40,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PUT - Update a resume
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, context: ResumeRouteContext) {
+  const { id } = await context.params
   const supabase = await createClient()
 
   const {
@@ -41,12 +53,18 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
+  }
+
   const body = await request.json()
 
   const { data: resume, error } = await supabase
     .from("resumes")
     .update(body)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .select()
     .single()
@@ -59,7 +77,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // DELETE - Delete a resume
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, context: ResumeRouteContext) {
+  const { id } = await context.params
   const supabase = await createClient()
 
   const {
@@ -71,10 +90,16 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
+  }
+
   const { error } = await supabase
     .from("resumes")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
 
   if (error) {

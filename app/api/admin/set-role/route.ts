@@ -27,8 +27,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing userId or role" }, { status: 400 })
     }
 
-    if (!["admin", "user"].includes(role)) {
-      return NextResponse.json({ error: "Invalid role. Must be 'admin' or 'user'" }, { status: 400 })
+    if (!["admin", "user", "company"].includes(role)) {
+      return NextResponse.json({ error: "Invalid role. Must be 'admin', 'user', or 'company'" }, { status: 400 })
     }
 
     // Update user role

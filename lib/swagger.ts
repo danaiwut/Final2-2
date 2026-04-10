@@ -394,7 +394,7 @@ const options = {
       '/api/admin/set-role': {
         post: {
           summary: 'Set a user role (Admin)',
-          description: 'Updates role of a user. Valid roles: "admin", "user".',
+          description: 'Updates role of a user. Valid roles: "admin", "user", "company".',
           tags: ['Admin'],
           requestBody: {
             required: true,
@@ -405,7 +405,7 @@ const options = {
                   required: ['userId', 'role'],
                   properties: {
                     userId: { type: 'string', format: 'uuid' },
-                    role: { type: 'string', enum: ['admin', 'user'], example: 'admin' }
+                    role: { type: 'string', enum: ['admin', 'user', 'company'], example: 'company' }
                   }
                 }
               }

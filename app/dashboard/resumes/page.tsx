@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { requireStandardUser } from "@/lib/auth/admin"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
@@ -23,6 +24,7 @@ const templateColors: Record<string, string> = {
 }
 
 export default async function ResumesPage() {
+  await requireStandardUser()
   const supabase = await createClient()
 
   const {

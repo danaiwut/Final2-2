@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { requireStandardUser } from "@/lib/auth/admin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -7,16 +7,8 @@ import { Download, Building2, Clock, FileText } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 export default async function ResumeHistoryPage() {
+  const { user } = await requireStandardUser()
   const supabase = await createClient()
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-
-  if (error || !user) {
-    redirect("/auth/login")
-  }
 
   const { data: downloads } = await supabase
     .from("resume_downloads")

@@ -124,7 +124,10 @@ export function UsersTable({ users }: UsersTableProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{user.full_name || "Unknown"}</p>
-                        <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-xs">
+                        <Badge
+                          variant={user.role === "admin" ? "default" : "secondary"}
+                          className="text-xs capitalize"
+                        >
                           {user.role || "user"}
                         </Badge>
                       </div>
@@ -155,6 +158,7 @@ export function UsersTable({ users }: UsersTableProps) {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="company">Company</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                         </SelectContent>
                       </Select>

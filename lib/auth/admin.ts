@@ -85,3 +85,24 @@ export async function requireVerifiedCompany() {
 
   return { user, profile }
 }
+
+export async function requireStandardUser() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    redirect("/auth/login")
+  }
+
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+
+  if (profile?.role === "company") {
+    redirect("/dashboard")
+  }
+
+  return { user, profile }
+}

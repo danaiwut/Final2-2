@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { requireStandardUser } from "@/lib/auth/admin"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import Link from "next/link"
-import { Plus, Edit, UserCircle, Sparkles } from "lucide-react"
+import { Plus, Edit, UserCircle } from "lucide-react"
 import { ExportPersonaButton } from "@/components/personas/export-persona-button"
 import { DeletePersonaButton } from "@/components/personas/delete-persona-button"
 
@@ -33,6 +34,7 @@ function getToneStyle(tone: string) {
 }
 
 export default async function PersonasPage() {
+  const { profile } = await requireStandardUser()
   const supabase = await createClient()
 
   const {
@@ -42,8 +44,6 @@ export default async function PersonasPage() {
   if (error || !user) {
     redirect("/auth/login")
   }
-
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   const { data: personas } = await supabase
     .from("personas")
