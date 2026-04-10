@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -33,33 +33,37 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
     color_scheme: resume.color_scheme && resume.color_scheme.startsWith("#") ? resume.color_scheme : "#3B2A1A"
   })
   const [isSaving, setIsSaving] = useState(false)
+  const prevPersonaIdRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (formData.persona_id) {
-      const selectedPersona = personas.find(p => p.id === formData.persona_id)
-      if (selectedPersona) {
-        setFormData(prev => ({
-          ...prev,
-          full_name: selectedPersona.name || prev.full_name,
-          title: selectedPersona.career?.title || "Professional Title",
-          summary: selectedPersona.description || "",
-          experience: selectedPersona.career ? [{
-            company: selectedPersona.career.industry || "Industry",
-            title: selectedPersona.career.title || "Job Title",
-            duration: `${selectedPersona.career.experience_years} Years`,
-            description: selectedPersona.career.specializations?.join(", ") || ""
-          }] : [],
-          education: selectedPersona.education ? [{
-            degree: selectedPersona.education.degree,
-            field: selectedPersona.education.field,
-            institution: selectedPersona.education.institution,
-            graduation_year: selectedPersona.education.graduation_year
-          }] : [],
-          skills: selectedPersona.career?.specializations || [],
-          projects: selectedPersona.projects || []
-        }))
-      }
-    }
+    const personaId = formData.persona_id
+    if (!personaId || personaId === prevPersonaIdRef.current) return
+
+    prevPersonaIdRef.current = personaId
+
+    const selectedPersona = personas.find(p => p.id === personaId)
+    if (!selectedPersona) return
+
+    setFormData(prev => ({
+      ...prev,
+      full_name: selectedPersona.name || prev.full_name,
+      title: selectedPersona.career?.title || "Professional Title",
+      summary: selectedPersona.description || "",
+      experience: selectedPersona.career ? [{
+        company: selectedPersona.career.industry || "Industry",
+        title: selectedPersona.career.title || "Job Title",
+        duration: `${selectedPersona.career.experience_years} Years`,
+        description: selectedPersona.career.specializations?.join(", ") || ""
+      }] : [],
+      education: selectedPersona.education ? [{
+        degree: selectedPersona.education.degree,
+        field: selectedPersona.education.field,
+        institution: selectedPersona.education.institution,
+        graduation_year: selectedPersona.education.graduation_year
+      }] : [],
+      skills: selectedPersona.career?.specializations || [],
+      projects: selectedPersona.projects || []
+    }))
   }, [formData.persona_id, personas])
 
   const handleSave = async () => {
