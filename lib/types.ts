@@ -3,7 +3,7 @@ export interface Profile {
   id: string
   email: string
   full_name: string
-  role: "admin" | "user"
+  role: "admin" | "user" | "company"
   avatar_url?: string
   bio?: string
   location?: string
@@ -11,6 +11,16 @@ export interface Profile {
   twitter?: string
   linkedin?: string
   github?: string
+  // Company-specific fields
+  company_name?: string
+  company_registration_number?: string
+  company_website?: string
+  company_phone?: string
+  verification_status?: "none" | "pending" | "verified" | "rejected"
+  verification_documents?: any[]
+  verification_submitted_at?: string
+  verification_reviewed_at?: string
+  verification_reviewed_by?: string
   created_at: string
   updated_at: string
 }
@@ -136,6 +146,7 @@ export interface Job {
   posted_date: string
   application_url?: string
   is_active: boolean
+  company_user_id?: string
   created_at: string
   updated_at: string
 }
@@ -156,6 +167,32 @@ export interface JobMatch {
 export interface JobWithMatch extends Job {
   match_score?: number
   match_status?: string
+}
+
+export interface JobApplication {
+  id: string
+  job_id: string
+  user_id: string
+  resume_id?: string
+  cover_letter?: string
+  status: "pending" | "reviewed" | "accepted" | "rejected"
+  applied_at: string
+  updated_at: string
+  // Joined data
+  jobs?: Job
+  profiles?: Profile
+  resumes?: any
+}
+
+export interface ResumeDownload {
+  id: string
+  resume_id: string
+  user_id: string
+  downloaded_by: string
+  company_name?: string
+  downloaded_at: string
+  // Joined data
+  profiles?: Profile
 }
 
 export interface UserPreferences {
@@ -185,11 +222,13 @@ export interface CommunityPost {
   title: string
   content: string
   post_type: "text" | "project" | "achievement" | "question"
+  poster_type?: "user" | "company"
   tags?: string[]
   likes_count: number
   comments_count: number
   views_count: number
   is_published: boolean
+  moderation_status?: string
   metadata?: Record<string, any>
   created_at: string
   updated_at: string
@@ -227,6 +266,9 @@ export interface Notification {
     | "message"
     | "follow"
     | "endorsement"
+    | "job_application"
+    | "verification_status"
+    | "chat_message"
   title: string
   message: string
   link?: string

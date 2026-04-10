@@ -239,11 +239,17 @@ export default function SignUpPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-500">
               Already have an account?{" "}
               <Link href="/auth/login" className="font-semibold text-[#0b5ed7] hover:text-[#0a58ca] hover:underline">
                 Sign In
+              </Link>
+            </p>
+            <p className="text-sm text-gray-500">
+              Are you a company?{" "}
+              <Link href="/auth/sign-up-company" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
+                Register as Company
               </Link>
             </p>
           </div>

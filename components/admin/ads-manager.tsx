@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Plus, Edit, Trash2, Calendar, Target, ImageIcon, Link as LinkIcon, BarChart3 } from "lucide-react"
+import { Plus, Edit, Trash2, Calendar, Target, ImageIcon, Link as LinkIcon, BarChart3, Upload, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import { createClient } from "@/lib/supabase/client"
 
 interface AdsManagerProps {
   ads: any[]
@@ -21,7 +22,9 @@ interface AdsManagerProps {
 
 export function AdsManager({ ads, adminId }: AdsManagerProps) {
   const router = useRouter()
+  const supabase = createClient()
   const [isCreating, setIsCreating] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
@@ -158,13 +161,53 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                   <div className="space-y-3">
                     <Label className="text-slate-700 font-medium flex items-center gap-2">
                       <ImageIcon className="h-4 w-4 text-slate-400" />
-                      Image URL
+                      Ad Image
                     </Label>
+                    {formData.image_url && (
+                      <div className="relative h-24 rounded-lg overflow-hidden border bg-slate-50">
+                        <img src={formData.image_url} alt="Ad preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <label className="flex-1 cursor-pointer">
+                        <div className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-dashed border-slate-300 rounded-lg hover:border-indigo-400 hover:bg-indigo-50/30 transition-all text-sm text-slate-600">
+                          {uploadingImage ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                          ) : (
+                            <Upload className="h-4 w-4" />
+                          )}
+                          {uploadingImage ? "Uploading..." : "Upload from device"}
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          disabled={uploadingImage}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (!file) return
+                            setUploadingImage(true)
+                            try {
+                              const ext = file.name.split(".").pop()
+                              const path = `ads/${Date.now()}.${ext}`
+                              const { error } = await supabase.storage.from("ad-images").upload(path, file, { upsert: true })
+                              if (error) throw error
+                              const { data: urlData } = supabase.storage.from("ad-images").getPublicUrl(path)
+                              setFormData({ ...formData, image_url: urlData.publicUrl })
+                            } catch (err) {
+                              console.error("Upload failed:", err)
+                            } finally {
+                              setUploadingImage(false)
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
                     <Input
                       value={formData.image_url}
                       onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                      className="border-slate-200 focus-visible:ring-indigo-500"
+                      placeholder="Or paste image URL..."
+                      className="border-slate-200 focus-visible:ring-indigo-500 text-xs"
                     />
                   </div>
 
@@ -197,9 +240,11 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="sidebar">Right Sidebar</SelectItem>
+                        <SelectItem value="header">Header</SelectItem>
                         <SelectItem value="banner">Top Banner</SelectItem>
+                        <SelectItem value="sidebar">Right Sidebar</SelectItem>
                         <SelectItem value="feed">In-Feed Layout</SelectItem>
+                        <SelectItem value="footer">Footer</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

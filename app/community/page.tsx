@@ -59,7 +59,7 @@ export default async function CommunityPage() {
     allPostsData.map(async (post) => {
       const { data: userProfile } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url")
+        .select("id, full_name, avatar_url, role, company_name, verification_status")
         .eq("id", post.user_id)
         .maybeSingle()
       let personaData = null
@@ -67,7 +67,12 @@ export default async function CommunityPage() {
         const { data } = await supabase.from("personas").select("id, name").eq("id", post.persona_id).maybeSingle()
         personaData = data
       }
-      return { ...post, profiles: userProfile, personas: personaData }
+      return {
+        ...post,
+        poster_type: userProfile?.role === "company" ? "company" : "user",
+        profiles: userProfile,
+        personas: personaData,
+      }
     }),
   )
 

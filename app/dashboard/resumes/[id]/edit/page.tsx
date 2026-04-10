@@ -15,6 +15,7 @@ export default async function EditResumePage({ params }: { params: { id: string 
   }
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
   
   const { data: resume } = await supabase
     .from("resumes")
@@ -30,7 +31,7 @@ export default async function EditResumePage({ params }: { params: { id: string 
   return (
     <div className="p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
-        <ResumeEditor resume={resume} />
+        <ResumeEditor resume={resume} personas={personas || []} />
       </div>
     </div>
   )

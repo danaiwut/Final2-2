@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/client"
 
 interface AdSpaceProps {
-  placement: "sidebar" | "banner" | "feed"
+  placement: "sidebar" | "banner" | "feed" | "header" | "footer"
 }
 
 export function AdSpace({ placement }: AdSpaceProps) {
@@ -49,19 +49,46 @@ export function AdSpace({ placement }: AdSpaceProps) {
 
   if (!ad) return null
 
-  const getCardClass = () => {
+  const getLayoutClass = () => {
     switch (placement) {
+      case "header":
+        return "w-full h-16 rounded-none border-x-0 border-t-0"
       case "banner":
-        return "w-full h-24"
+        return "w-full h-24 rounded-lg"
+      case "footer":
+        return "w-full h-16 rounded-none border-x-0 border-b-0"
       case "feed":
-        return "w-full"
+        return "w-full rounded-lg"
       default:
-        return "w-full"
+        return "w-full rounded-lg"
     }
   }
 
-  return (
-    <Card className={`cursor-pointer hover:shadow-lg transition-shadow ${getCardClass()}`} onClick={handleClick}>
+  const getContentLayout = () => {
+    if (placement === "header" || placement === "footer") {
+      return (
+        <div className="px-4 py-2 flex items-center justify-center gap-4 h-full bg-gradient-to-r from-indigo-50 via-white to-purple-50">
+          {ad.image_url && (
+            <img
+              src={ad.image_url}
+              alt={ad.title}
+              className="h-10 w-auto object-contain flex-shrink-0"
+            />
+          )}
+          <div className="flex items-center gap-3 min-w-0">
+            <h4 className="font-semibold text-sm text-gray-800 truncate">{ad.title}</h4>
+            {ad.description && (
+              <span className="hidden sm:inline text-xs text-gray-500 truncate">{ad.description}</span>
+            )}
+          </div>
+          <Badge variant="outline" className="text-[10px] flex-shrink-0 opacity-60">
+            Ad
+          </Badge>
+        </div>
+      )
+    }
+
+    return (
       <div className="p-4 flex items-center justify-between gap-4 h-full">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {ad.image_url && (
@@ -82,6 +109,15 @@ export function AdSpace({ placement }: AdSpaceProps) {
           Ad
         </Badge>
       </div>
+    )
+  }
+
+  return (
+    <Card
+      className={`cursor-pointer hover:shadow-lg transition-shadow ${getLayoutClass()}`}
+      onClick={handleClick}
+    >
+      {getContentLayout()}
     </Card>
   )
 }

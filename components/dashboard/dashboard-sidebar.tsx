@@ -25,16 +25,20 @@ import {
   Globe,
   MessageSquare,
   ChevronRight,
+  Building2,
+  ShieldCheck,
+  ClipboardList,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { NotificationBell } from "./notification-bell"
 
 interface DashboardSidebarProps {
   user: User
   profile: any
 }
 
-const navItems = [
+const userNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/personas", label: "Personas", icon: Users, exact: false },
   { href: "/dashboard/resumes", label: "Resumes", icon: FileText, exact: false },
@@ -43,10 +47,22 @@ const navItems = [
   { href: "/dashboard/chat", label: "Chat", icon: MessageSquare, exact: false },
 ]
 
+const companyNavItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/company/jobs", label: "My Job Posts", icon: Briefcase, exact: false },
+  { href: "/dashboard/company/applications", label: "Applications", icon: ClipboardList, exact: false },
+  { href: "/dashboard/company/verification", label: "Verification", icon: ShieldCheck, exact: false },
+  { href: "/community", label: "Community", icon: Globe, exact: false },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare, exact: false },
+]
+
 export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
+
+  const isCompanyRole = profile?.role === "company"
+  const navItems = isCompanyRole ? companyNavItems : userNavItems
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -58,7 +74,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
     return pathname.startsWith(href)
   }
 
-  const displayName = profile?.full_name || user.email?.split("@")[0] || "User"
+  const displayName = profile?.full_name || profile?.company_name || user.email?.split("@")[0] || "User"
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -69,14 +85,39 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-[#E8DDD1] bg-[#FDFAF6]">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-[#E8DDD1] px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#A07850]">
-          <span className="font-['Playfair_Display'] text-sm font-bold text-white">SP</span>
+      <div className="flex h-16 items-center justify-between border-b border-[#E8DDD1] px-6">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg",
+            isCompanyRole ? "bg-indigo-600" : "bg-[#A07850]"
+          )}>
+            {isCompanyRole ? (
+              <Building2 className="h-4 w-4 text-white" />
+            ) : (
+              <span className="font-['Playfair_Display'] text-sm font-bold text-white">SP</span>
+            )}
+          </div>
+          <Link href="/dashboard" className="font-['Playfair_Display'] text-lg font-bold text-[#3B2A1A]">
+            Smart Persona
+          </Link>
         </div>
-        <Link href="/dashboard" className="font-['Playfair_Display'] text-lg font-bold text-[#3B2A1A]">
-          Smart Persona
-        </Link>
+        <NotificationBell />
       </div>
+
+      {/* Role Badge */}
+      {isCompanyRole && (
+        <div className="mx-3 mt-3 px-3 py-2 bg-indigo-50 rounded-lg border border-indigo-100">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-3.5 w-3.5 text-indigo-600" />
+            <span className="text-xs font-semibold text-indigo-700">Company Account</span>
+            {profile?.verification_status === "verified" && (
+              <span className="ml-auto text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                ✔ Verified
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
@@ -90,7 +131,9 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                   active
-                    ? "bg-[#A07850] text-white shadow-sm"
+                    ? isCompanyRole
+                      ? "bg-indigo-600 text-white shadow-sm"
+                      : "bg-[#A07850] text-white shadow-sm"
                     : "text-[#6B4C30] hover:bg-[#F0E6D8] hover:text-[#3B2A1A]",
                 )}
               >
@@ -106,25 +149,29 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         <div className="my-4 border-t border-[#E8DDD1]" />
 
         <div className="space-y-1">
-          <Link
-            href="/dashboard/jobs/saved"
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
-              pathname === "/dashboard/jobs/saved"
-                ? "bg-[#A07850] text-white shadow-sm"
-                : "text-[#6B4C30] hover:bg-[#F0E6D8] hover:text-[#3B2A1A]",
-            )}
-          >
-            <Bookmark className="h-4 w-4 flex-shrink-0" />
-            <span>Saved Jobs</span>
-          </Link>
-          <Link
-            href="/admin"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#6B4C30] transition-all duration-150 hover:bg-[#F0E6D8] hover:text-[#3B2A1A]"
-          >
-            <Shield className="h-4 w-4 flex-shrink-0" />
-            <span>Admin Panel</span>
-          </Link>
+          {!isCompanyRole && (
+            <Link
+              href="/dashboard/jobs/saved"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                pathname === "/dashboard/jobs/saved"
+                  ? "bg-[#A07850] text-white shadow-sm"
+                  : "text-[#6B4C30] hover:bg-[#F0E6D8] hover:text-[#3B2A1A]",
+              )}
+            >
+              <Bookmark className="h-4 w-4 flex-shrink-0" />
+              <span>Saved Jobs</span>
+            </Link>
+          )}
+          {profile?.role === "admin" && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#6B4C30] transition-all duration-150 hover:bg-[#F0E6D8] hover:text-[#3B2A1A]"
+            >
+              <Shield className="h-4 w-4 flex-shrink-0" />
+              <span>Admin Panel</span>
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -133,7 +180,10 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-150 hover:bg-[#F0E6D8]">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#D4B896] text-[#3B2A1A]">
+              <div className={cn(
+                "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[#3B2A1A]",
+                isCompanyRole ? "bg-indigo-200" : "bg-[#D4B896]"
+              )}>
                 <span className="text-xs font-semibold">{initials}</span>
               </div>
               <div className="flex-1 overflow-hidden">
@@ -148,6 +198,9 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{displayName}</span>
                 <span className="text-xs text-muted-foreground">{user.email}</span>
+                {isCompanyRole && (
+                  <span className="text-xs font-semibold text-indigo-600 mt-0.5">Company</span>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

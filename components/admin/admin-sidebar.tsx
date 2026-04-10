@@ -35,6 +35,7 @@ interface AdminSidebarProps {
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/admin/verification", label: "Verification", icon: ShieldAlert, exact: false },
   { href: "/admin/community", label: "Community", icon: Globe, exact: false },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase, exact: false },
   { href: "/admin/ads", label: "Ads", icon: Megaphone, exact: false },
