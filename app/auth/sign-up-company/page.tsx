@@ -68,12 +68,18 @@ export default function CompanySignUpPage() {
       })
 
       if (error) {
-        toast.error("Sign up failed", { description: error.message })
+        if (error.message.toLowerCase().includes("already registered")) {
+          toast.error("Registration failed", { 
+            description: "This email is already registered. You cannot register a company with an existing user account." 
+          })
+        } else {
+          toast.error("Sign up failed", { description: error.message })
+        }
         return
       }
 
-      toast.success("Company account created! Please check your email to verify.")
-      router.push("/auth/sign-up-success")
+      toast.success("Company account created! Please check your email for the verification code.")
+      router.push(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`)
     } catch (error: any) {
       toast.error("An error occurred", { description: error.message || "Please try again later." })
     }
