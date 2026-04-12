@@ -4,7 +4,9 @@ import { requireStandardUser } from "@/lib/auth/admin"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Plus, FileText, Edit, Download, Trash2, Clock } from "lucide-react"
+import { Plus, FileText, Edit, Clock } from "lucide-react"
+import { ResumeDownloadButton } from "@/components/resumes/resume-download-button"
+import { DeleteResumeButton } from "@/components/resumes/delete-resume-button"
 
 interface Resume {
   id: string
@@ -131,20 +133,15 @@ export default async function ResumesPage() {
                         Edit
                       </Link>
                     </Button>
-                    <Button
+                    <ResumeDownloadButton
+                      resumeId={resume.id}
+                      ownerUserId={user.id}
                       variant="outline"
                       size="sm"
                       className="gap-1 text-xs border-[#D4B896] text-[#A07850] hover:bg-[#F5EDE2]"
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1 text-xs border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                      label=""
+                    />
+                    <DeleteResumeButton resumeId={resume.id} resumeTitle={resume.title} />
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import React from "react"
 import { Mail, Phone, MapPin, Globe, Linkedin, Github } from "lucide-react"
+import { resumeColorToHex } from "@/lib/resumes/normalize"
 
 // Ensure we handle both Persona data directly or Resume data format
 export function mapResumeData(resume: any) {
@@ -18,7 +19,7 @@ export function mapResumeData(resume: any) {
     skills: Array.isArray(resume.skills) && resume.skills.length > 0 ? resume.skills : ["Skill 1", "Skill 2"],
     projects: Array.isArray(resume.projects) && resume.projects.length > 0 ? resume.projects : [],
     certifications: Array.isArray(resume.certifications) ? resume.certifications : [],
-    color: resume.color_scheme || "#3B2A1A", 
+    color: resumeColorToHex(resume.color_scheme),
   }
 }
 
@@ -392,4 +393,18 @@ export function TemplateFour({ resume }: { resume: any }) {
       </div>
     </div>
   )
+}
+
+export function ResumeTemplateView({ resume }: { resume: any }) {
+  switch (resume?.template_style) {
+    case "minimal":
+      return <TemplateTwo resume={resume} />
+    case "professional":
+      return <TemplateThree resume={resume} />
+    case "creative":
+      return <TemplateFour resume={resume} />
+    case "modern":
+    default:
+      return <TemplateOne resume={resume} />
+  }
 }

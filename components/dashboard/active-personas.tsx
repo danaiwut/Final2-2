@@ -91,7 +91,7 @@ export function ActivePersonas({ personas }: ActivePersonasProps) {
               return (
                 <Link
                   key={persona.id}
-                  href={`/dashboard/personas/${persona.id}`}
+                  href={`/dashboard/personas/${persona.id}/edit`}
                   className="flex items-center gap-4 py-3.5 transition-colors hover:bg-[#FDFAF6] rounded-lg px-2 -mx-2"
                 >
                   {/* Avatar */}

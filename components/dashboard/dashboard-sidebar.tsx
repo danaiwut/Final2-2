@@ -222,7 +222,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             <DropdownMenuItem asChild>
               <Link href="/dashboard/profile">
                 <UserIcon className="mr-2 h-4 w-4" />
-                View Profile
+                Persona View
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>

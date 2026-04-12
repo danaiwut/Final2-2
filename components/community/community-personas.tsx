@@ -148,7 +148,7 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
                     <span>{persona.views_count || 0} views</span>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/community/personas/${persona.id}`}>View Profile</Link>
+                    <Link href={`/community/personas/${persona.id}`}>View Persona</Link>
                   </Button>
                 </div>
               </CardContent>

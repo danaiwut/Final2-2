@@ -34,7 +34,7 @@ function getToneStyle(tone: string) {
 }
 
 export default async function PersonasPage() {
-  const { profile } = await requireStandardUser()
+  await requireStandardUser()
   const supabase = await createClient()
 
   const {
@@ -50,6 +50,15 @@ export default async function PersonasPage() {
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
+
+  const { data: resumes } = await supabase
+    .from("resumes")
+    .select("id, persona_id, updated_at")
+    .eq("user_id", user.id)
+    .not("persona_id", "is", null)
+    .order("updated_at", { ascending: false })
+
+  const resumeByPersonaId = new Map((resumes || []).map((resume) => [resume.persona_id, resume.id]))
 
   return (
     <div className="p-6 md:p-8">
@@ -122,9 +131,10 @@ export default async function PersonasPage() {
                 <div className="mt-4 flex items-center gap-2 border-t border-[#F0E6D8] pt-4">
                   <ExportPersonaButton
                     persona={persona}
-                    profile={profile}
+                    resumeId={resumeByPersonaId.get(persona.id)}
                     variant="outline"
                     size="sm"
+                    disabledMessage="No resume yet"
                   />
                   <Button asChild variant="outline" size="sm" className="flex-1 text-xs gap-1">
                     <Link href={`/dashboard/personas/${persona.id}/edit`}>

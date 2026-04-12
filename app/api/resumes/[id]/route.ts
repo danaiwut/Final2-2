@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { normalizeResumePayload } from "@/lib/resumes/normalize"
 
 type ResumeRouteContext = {
   params: Promise<{ id: string }>
@@ -59,7 +60,7 @@ export async function PUT(request: Request, context: ResumeRouteContext) {
     return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
   }
 
-  const body = await request.json()
+  const body = normalizeResumePayload(await request.json())
 
   const { data: resume, error } = await supabase
     .from("resumes")

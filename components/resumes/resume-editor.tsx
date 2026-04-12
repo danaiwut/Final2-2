@@ -9,6 +9,7 @@ import { Save, Printer, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TemplateOne, TemplateTwo, TemplateThree, TemplateFour } from "./resume-template-views"
+import { resumeColorToHex } from "@/lib/resumes/normalize"
 
 interface ResumeEditorProps {
   resume: any
@@ -27,12 +28,14 @@ const COLORS = ["#3B2A1A", "#3B82F6", "#10B981", "#8B5CF6", "#DC2626", "#F97316"
 
 export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEditorProps) {
   const router = useRouter()
+  const previewRef = useRef<HTMLDivElement | null>(null)
   const [formData, setFormData] = useState({
     ...resume,
     template_style: resume.template_style || "modern",
-    color_scheme: resume.color_scheme && resume.color_scheme.startsWith("#") ? resume.color_scheme : "#3B2A1A"
+    color_scheme: resumeColorToHex(resume.color_scheme),
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const prevPersonaIdRef = useRef<string | null>(null)
 
   useEffect(() => {
@@ -44,7 +47,7 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
     const selectedPersona = personas.find(p => p.id === personaId)
     if (!selectedPersona) return
 
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       full_name: selectedPersona.name || prev.full_name,
       title: selectedPersona.career?.title || "Professional Title",
@@ -68,30 +71,58 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
 
   const handleSave = async () => {
     setIsSaving(true)
+    setError(null)
     try {
-      if (isNew) {
-        const response = await fetch("/api/resumes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        })
-        if (response.ok) {
-          router.push("/dashboard/resumes")
-        }
-      } else {
-        const response = await fetch(`/api/resumes/${resume.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        })
-        if (response.ok) {
-          router.push("/dashboard/resumes")
-        }
+      const endpoint = isNew ? "/api/resumes" : `/api/resumes/${resume.id}`
+      const method = isNew ? "POST" : "PUT"
+      const response = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to save resume")
       }
+
+      router.refresh()
+      router.push("/dashboard/resumes")
     } catch (error) {
       console.error("Error saving resume:", error)
+      setError(error instanceof Error ? error.message : "Unable to save resume")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handlePrint = () => {
+    const previewNode = previewRef.current
+    if (!previewNode) {
+      window.print()
+      return
+    }
+
+    const originalTitle = document.title
+    const resumeTitle = `${(formData.full_name || formData.title || "resume").trim()} Resume`
+
+    document.body.classList.add("resume-print-mode")
+    previewNode.classList.add("resume-print-target")
+    document.title = resumeTitle
+
+    const cleanup = () => {
+      document.body.classList.remove("resume-print-mode")
+      previewNode.classList.remove("resume-print-target")
+      document.title = originalTitle
+      window.removeEventListener("afterprint", cleanup)
+    }
+
+    window.addEventListener("afterprint", cleanup, { once: true })
+
+    try {
+      window.print()
+    } finally {
+      window.setTimeout(cleanup, 500)
     }
   }
 
@@ -120,7 +151,7 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
           <p className="text-[#6B4C30]">Select your persona and choose a design template</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-[#A07850] text-[#A07850]" onClick={() => window.print()}>
+          <Button variant="outline" className="border-[#A07850] text-[#A07850]" onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" />
             Print / Save PDF
           </Button>
@@ -134,6 +165,12 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
           </Button>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
 
@@ -216,8 +253,11 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
         </div>
 
         {/* Right Panel - Live Preview */}
-        <div className="xl:col-span-8 flex justify-center bg-gray-100 rounded-xl p-4 border border-gray-200 shadow-inner overflow-auto h-[800px]">
-          <div className="w-full max-w-[700px] h-fit md:h-[900px] bg-white shadow-2xl rounded-sm">
+        <div className="resume-editor-shell xl:col-span-8 flex justify-center bg-gray-100 rounded-xl p-4 border border-gray-200 shadow-inner overflow-auto h-[800px]">
+          <div
+            ref={previewRef}
+            className="resume-preview-sheet w-full max-w-[700px] h-fit md:h-[900px] bg-white shadow-2xl rounded-sm"
+          >
             {renderPreview()}
           </div>
         </div>

@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Users, FileText, Download, Clock, CheckCircle2, XCircle, Eye } from "lucide-react"
+import { Users, FileText, Clock, CheckCircle2, XCircle, Eye } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { ResumeDownloadButton } from "@/components/resumes/resume-download-button"
 
 export default async function CompanyApplicationsPage() {
-  const { user, profile } = await requireCompany()
+  const { user } = await requireCompany()
   const supabase = await createClient()
 
   // Get all jobs by this company
@@ -126,10 +127,15 @@ export default async function CompanyApplicationsPage() {
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
                         {app.resume_id && (
-                          <Button variant="outline" size="sm" className="bg-transparent">
-                            <Download className="mr-1.5 h-3.5 w-3.5" />
-                            Resume
-                          </Button>
+                          <ResumeDownloadButton
+                            resumeId={app.resume_id}
+                            ownerUserId={app.user_id}
+                            variant="outline"
+                            size="sm"
+                            className="bg-transparent"
+                            label="Resume"
+                            trackDownload={true}
+                          />
                         )}
                       </div>
                     </div>

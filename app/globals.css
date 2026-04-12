@@ -335,4 +335,37 @@
     border-radius: 50%;
     animation: spin-slow 0.6s linear infinite;
   }
+
+  @media print {
+    body.resume-print-mode * {
+      visibility: hidden !important;
+    }
+
+    body.resume-print-mode .resume-print-target,
+    body.resume-print-mode .resume-print-target * {
+      visibility: visible !important;
+    }
+
+    body.resume-print-mode .resume-print-target {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 210mm !important;
+      min-height: 297mm !important;
+      max-width: 210mm !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+      background: white !important;
+    }
+
+    body.resume-print-mode {
+      background: white !important;
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+  }
 }

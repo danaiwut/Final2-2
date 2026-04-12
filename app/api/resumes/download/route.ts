@@ -18,6 +18,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const { data: resume } = await supabase
+      .from("resumes")
+      .select("id, user_id")
+      .eq("id", resumeId)
+      .eq("user_id", userId)
+      .maybeSingle()
+
+    if (!resume) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 })
+    }
+
+    if (user.id === userId) {
+      return NextResponse.json({ success: true, skipped: true })
+    }
+
     // Get company name if downloader is a company
     const { data: profile } = await supabase
       .from("profiles")

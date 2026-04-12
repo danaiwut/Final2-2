@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { normalizeResumePayload } from "@/lib/resumes/normalize"
 
 // GET - Fetch all resumes for the authenticated user
 export async function GET() {
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Company accounts cannot manage resumes" }, { status: 403 })
   }
 
-  const body = await request.json()
+  const body = normalizeResumePayload(await request.json())
 
   const { data: resume, error } = await supabase
     .from("resumes")

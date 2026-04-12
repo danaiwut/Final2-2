@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
+import { CommunityChatSidebar } from "@/components/community/community-chat-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -39,6 +40,15 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
     .eq("id", persona.user_id)
     .maybeSingle()
 
+  const { data: linkedResume } = await supabase
+    .from("resumes")
+    .select("id")
+    .eq("user_id", persona.user_id)
+    .eq("persona_id", id)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
   // Attach profile to persona for compatibility
   const personaWithProfile = {
     ...persona,
@@ -57,6 +67,8 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
       .update({ views_count: (persona.views_count || 0) + 1 })
       .eq("id", id)
   }
+
+  const displayedViews = persona.user_id !== user.id ? (persona.views_count || 0) + 1 : persona.views_count || 0
 
   const { data: followData } = await supabase
     .from("follows")
@@ -96,10 +108,11 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
   )
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-5xl space-y-6">
+    <div className="flex min-h-screen bg-[#FDFAF6]">
+      <DashboardSidebar user={user} profile={profile} />
+      <div className="flex flex-1 flex-col pl-64">
+        <main className="flex-1 p-6 md:p-8">
+          <div className="mx-auto max-w-5xl space-y-6">
           {/* Profile Header */}
           <Card>
             <CardHeader>
@@ -125,12 +138,17 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
                     <div className="text-sm">
                       <span className="font-semibold">{followingCount || 0}</span> following
                     </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">{displayedViews}</span> views
+                    </div>
                     <FollowButton userId={user.id} targetUserId={persona.user_id} isFollowing={isFollowing} />
                     <ExportPersonaButton
                       persona={persona}
-                      profile={personaWithProfile.profiles}
+                      resumeId={linkedResume?.id}
                       variant="outline"
                       size="sm"
+                      disabledMessage="No resume published"
+                      trackDownload={persona.user_id !== user.id}
                     />
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -334,8 +352,10 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
               </CardContent>
             </Card>
           )}
-        </div>
-      </main>
+          </div>
+        </main>
+        <CommunityChatSidebar currentUserId={user.id} />
+      </div>
     </div>
   )
 }

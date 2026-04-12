@@ -20,6 +20,14 @@ export default async function DashboardPage() {
   const isCompany = profile?.role === "company"
 
   const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
+  const { data: resumes } = await supabase.from("resumes").select("id").eq("user_id", user.id)
+  const { data: applications } = await supabase
+    .from("job_applications")
+    .select("id, status")
+    .eq("user_id", user.id)
+
+  const applicationsCount = applications?.length || 0
+  const responsesCount = (applications || []).filter((application) => application.status !== "pending").length
 
   return (
     <div className="p-6 md:p-8">
@@ -53,7 +61,12 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <StatsCards personasCount={personas?.length || 0} />
+          <StatsCards
+            personasCount={personas?.length || 0}
+            resumesCount={resumes?.length || 0}
+            applicationsCount={applicationsCount}
+            responsesCount={responsesCount}
+          />
           <ActivePersonas personas={personas || []} />
         </div>
       )}

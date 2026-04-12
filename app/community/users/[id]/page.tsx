@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
+import { CommunityChatSidebar } from "@/components/community/community-chat-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -70,10 +71,11 @@ export default async function UserProfilePage({ params }: { params: { id: string
   const isOwnProfile = user.id === params.id
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={currentUserProfile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-5xl space-y-6">
+    <div className="flex min-h-screen bg-[#FDFAF6]">
+      <DashboardSidebar user={user} profile={currentUserProfile} />
+      <div className="flex flex-1 flex-col pl-64">
+        <main className="flex-1 p-6 md:p-8">
+          <div className="mx-auto max-w-5xl space-y-6">
           {/* Profile Header */}
           <Card>
             <CardContent className="p-6">
@@ -246,8 +248,10 @@ export default async function UserProfilePage({ params }: { params: { id: string
               </CardContent>
             </Card>
           )}
-        </div>
-      </main>
+          </div>
+        </main>
+        <CommunityChatSidebar currentUserId={user.id} />
+      </div>
     </div>
   )
 }

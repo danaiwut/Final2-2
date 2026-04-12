@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
+import { CommunityChatSidebar } from "@/components/community/community-chat-sidebar"
 import { CreatePostForm } from "@/components/community/create-post-form"
 
 export default async function NewPostPage() {
@@ -20,18 +21,21 @@ export default async function NewPostPage() {
   const { data: personas } = await supabase.from("personas").select("id, name").eq("user_id", user.id).order("name")
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-3xl space-y-6">
+    <div className="flex min-h-screen bg-[#FDFAF6]">
+      <DashboardSidebar user={user} profile={profile} />
+      <div className="flex flex-1 flex-col pl-64">
+        <main className="flex-1 p-6 md:p-8">
+          <div className="mx-auto max-w-3xl space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Create Post</h1>
             <p className="text-muted-foreground">Share your thoughts with the community</p>
           </div>
 
           <CreatePostForm personas={personas || []} userId={user.id} />
-        </div>
-      </main>
+          </div>
+        </main>
+        <CommunityChatSidebar currentUserId={user.id} />
+      </div>
     </div>
   )
 }

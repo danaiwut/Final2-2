@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from "@/lib/supabase/server"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
+import { CommunityChatSidebar } from "@/components/community/community-chat-sidebar"
 import { PostDetail } from "@/components/community/post-detail"
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -94,13 +95,16 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     .maybeSingle()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader user={user} profile={profile} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-4xl">
+    <div className="flex min-h-screen bg-[#FDFAF6]">
+      <DashboardSidebar user={user} profile={profile} />
+      <div className="flex flex-1 flex-col pl-64">
+        <main className="flex-1 p-6 md:p-8">
+          <div className="mx-auto max-w-4xl">
           <PostDetail post={post} comments={comments} currentUserId={user.id} isLiked={!!likeData} />
-        </div>
-      </main>
+          </div>
+        </main>
+        <CommunityChatSidebar currentUserId={user.id} />
+      </div>
     </div>
   )
 }

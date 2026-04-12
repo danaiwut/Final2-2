@@ -2,9 +2,12 @@ import { Users, FileText, Briefcase, TrendingUp } from "lucide-react"
 
 interface StatsCardsProps {
   personasCount: number
+  resumesCount: number
+  applicationsCount: number
+  responsesCount: number
 }
 
-const stats = (personasCount: number) => [
+const stats = ({ personasCount, resumesCount, applicationsCount, responsesCount }: StatsCardsProps) => [
   {
     label: "Active Personas",
     value: personasCount,
@@ -16,37 +19,37 @@ const stats = (personasCount: number) => [
   },
   {
     label: "Resumes Created",
-    value: "—",
+    value: resumesCount,
     icon: FileText,
     color: "bg-[#7B9E87]",
     lightColor: "bg-[#EBF3EE]",
     textColor: "text-[#7B9E87]",
-    change: "Manage resumes",
+    change: "Built from your real data",
   },
   {
-    label: "Jobs Tracked",
-    value: "—",
+    label: "Applications Sent",
+    value: applicationsCount,
     icon: Briefcase,
     color: "bg-[#6B7FA3]",
     lightColor: "bg-[#EBF0F8]",
     textColor: "text-[#6B7FA3]",
-    change: "Find new jobs",
+    change: "How many jobs you applied to",
   },
   {
-    label: "Profile Views",
-    value: "—",
+    label: "Company Responses",
+    value: responsesCount,
     icon: TrendingUp,
     color: "bg-[#A0507B]",
     lightColor: "bg-[#F5EBF1]",
     textColor: "text-[#A0507B]",
-    change: "This month",
+    change: "Reviewed, accepted, or rejected",
   },
 ]
 
-export function StatsCards({ personasCount }: StatsCardsProps) {
+export function StatsCards(props: StatsCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-      {stats(personasCount).map((stat) => (
+      {stats(props).map((stat) => (
         <div
           key={stat.label}
           className="rounded-xl border border-[#E8DDD1] bg-white p-5 shadow-sm transition-all hover:shadow-md"

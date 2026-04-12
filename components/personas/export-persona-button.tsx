@@ -1,36 +1,34 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Download } from "lucide-react"
-import { exportPersonaToPDF } from "@/lib/pdf/export-persona"
-import type { Persona, Profile } from "@/lib/types"
+import { ResumeDownloadButton } from "@/components/resumes/resume-download-button"
+import type { Persona } from "@/lib/types"
 
 interface ExportPersonaButtonProps {
   persona: Persona
-  profile?: Profile | null
+  resumeId?: string | null
   variant?: "default" | "outline" | "ghost"
   size?: "default" | "sm" | "lg" | "icon"
+  disabledMessage?: string
+  trackDownload?: boolean
 }
 
-export function ExportPersonaButton({ persona, profile, variant = "outline", size = "sm" }: ExportPersonaButtonProps) {
-  const [isExporting, setIsExporting] = useState(false)
-
-  const handleExport = async () => {
-    setIsExporting(true)
-    try {
-      exportPersonaToPDF(persona, profile)
-    } catch (error) {
-      console.error("Error exporting persona:", error)
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
+export function ExportPersonaButton({
+  persona,
+  resumeId,
+  variant = "outline",
+  size = "sm",
+  disabledMessage = "No resume set",
+  trackDownload = false,
+}: ExportPersonaButtonProps) {
   return (
-    <Button onClick={handleExport} variant={variant} size={size} disabled={isExporting}>
-      <Download className="mr-2 h-4 w-4" />
-      {isExporting ? "Exporting" : "Export PDF"}
-    </Button>
+    <ResumeDownloadButton
+      resumeId={resumeId}
+      ownerUserId={persona.user_id}
+      variant={variant}
+      size={size}
+      label="Export PDF"
+      disabledMessage={disabledMessage}
+      trackDownload={trackDownload}
+    />
   )
 }
