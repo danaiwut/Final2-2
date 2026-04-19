@@ -11,8 +11,23 @@ import { DeleteResumeButton } from "@/components/resumes/delete-resume-button"
 interface Resume {
   id: string
   title: string
+  full_name?: string
+  email?: string
+  phone?: string
+  location?: string
+  website?: string
+  linkedin?: string
+  github?: string
+  summary?: string
+  experience?: any[]
+  education?: any[]
+  skills?: any[]
+  projects?: any[]
+  certifications?: any[]
+  languages?: any[]
   template_style: string
   color_scheme: string
+  persona_id?: string | null
   is_default: boolean
   updated_at: string
   created_at: string

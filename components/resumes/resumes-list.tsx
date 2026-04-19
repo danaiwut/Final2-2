@@ -83,8 +83,11 @@ export function ResumesList({ resumes }: ResumesListProps) {
                   variant="outline"
                   size="sm"
                   className="border-[#A07850] text-[#A07850] hover:bg-[#A07850] hover:text-white"
+                  asChild
                 >
-                  <Download className="h-4 w-4" />
+                  <Link href={`/resumes/${resume.id}/download`} target="_blank">
+                    <Download className="h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </CardContent>

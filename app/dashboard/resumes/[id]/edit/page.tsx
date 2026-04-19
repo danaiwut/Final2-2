@@ -3,16 +3,17 @@ import { createClient } from "@/lib/supabase/server"
 import { requireStandardUser } from "@/lib/auth/admin"
 import { ResumeEditor } from "@/components/resumes/resume-editor"
 
-export default async function EditResumePage({ params }: { params: { id: string } }) {
+export default async function EditResumePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const { user } = await requireStandardUser()
   const supabase = await createClient()
 
   const { data: personas } = await supabase.from("personas").select("*").eq("user_id", user.id)
-  
+
   const { data: resume } = await supabase
     .from("resumes")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .single()
 

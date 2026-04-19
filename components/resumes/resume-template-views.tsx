@@ -4,22 +4,24 @@ import { resumeColorToHex } from "@/lib/resumes/normalize"
 
 // Ensure we handle both Persona data directly or Resume data format
 export function mapResumeData(resume: any) {
+  const source = resume ?? {}
+
   return {
-    fullName: resume.full_name || "Your Name",
-    title: resume.title || "Professional Title",
-    email: resume.email || "email@example.com",
-    phone: resume.phone || "+1 234 567 8900",
-    location: resume.location || "City, Country",
-    website: resume.website || "",
-    linkedin: resume.linkedin || "",
-    github: resume.github || "",
-    summary: resume.summary || "Professional summary goes here...",
-    experience: Array.isArray(resume.experience) && resume.experience.length > 0 ? resume.experience : [],
-    education: Array.isArray(resume.education) && resume.education.length > 0 ? resume.education : [],
-    skills: Array.isArray(resume.skills) && resume.skills.length > 0 ? resume.skills : ["Skill 1", "Skill 2"],
-    projects: Array.isArray(resume.projects) && resume.projects.length > 0 ? resume.projects : [],
-    certifications: Array.isArray(resume.certifications) ? resume.certifications : [],
-    color: resumeColorToHex(resume.color_scheme),
+    fullName: source.full_name || "Your Name",
+    title: source.title || "Professional Title",
+    email: source.email || "email@example.com",
+    phone: source.phone || "+1 234 567 8900",
+    location: source.location || "City, Country",
+    website: source.website || "",
+    linkedin: source.linkedin || "",
+    github: source.github || "",
+    summary: source.summary || "Professional summary goes here...",
+    experience: Array.isArray(source.experience) && source.experience.length > 0 ? source.experience : [],
+    education: Array.isArray(source.education) && source.education.length > 0 ? source.education : [],
+    skills: Array.isArray(source.skills) && source.skills.length > 0 ? source.skills : ["Skill 1", "Skill 2"],
+    projects: Array.isArray(source.projects) && source.projects.length > 0 ? source.projects : [],
+    certifications: Array.isArray(source.certifications) ? source.certifications : [],
+    color: resumeColorToHex(source.color_scheme),
   }
 }
 

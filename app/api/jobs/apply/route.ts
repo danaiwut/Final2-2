@@ -14,12 +14,30 @@ export async function POST(request: Request) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("id, role, full_name")
       .eq("id", user.id)
-      .single()
+      .maybeSingle()
+
+    const inferredRole = user.user_metadata?.role === "company" ? "company" : "user"
+    const resolvedRole = profile?.role || inferredRole
+
+    // Backfill older accounts that do not have a role/profile row yet.
+    if (!profile || profile.role !== resolvedRole) {
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        full_name:
+          profile?.full_name ||
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          (user.email ? user.email.split("@")[0] : "User"),
+        role: resolvedRole,
+        updated_at: new Date().toISOString(),
+      })
+    }
 
     // Only regular users can apply for jobs
-    if (profile?.role !== "user") {
+    if (resolvedRole !== "user") {
       return NextResponse.json({ error: "Only users can apply for jobs" }, { status: 403 })
     }
 
@@ -28,6 +46,19 @@ export async function POST(request: Request) {
 
     if (!jobId) {
       return NextResponse.json({ error: "Job ID is required" }, { status: 400 })
+    }
+
+    if (resumeId) {
+      const { data: resume } = await supabase
+        .from("resumes")
+        .select("id")
+        .eq("id", resumeId)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!resume) {
+        return NextResponse.json({ error: "Selected resume was not found" }, { status: 400 })
+      }
     }
 
     // Check if already applied
@@ -69,7 +100,7 @@ export async function POST(request: Request) {
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
-        .single()
+        .maybeSingle()
 
       await supabase.from("notifications").insert({
         user_id: job.company_user_id,

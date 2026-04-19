@@ -28,7 +28,13 @@ export default async function ResumeDownloadPage({ params, searchParams }: Resum
     .eq("id", user.id)
     .single()
 
-  const { data: resume } = await supabase
+  const { createClient: createSupabaseClient } = await import("@supabase/supabase-js")
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: resume } = await supabaseAdmin
     .from("resumes")
     .select("*")
     .eq("id", id)
@@ -39,7 +45,7 @@ export default async function ResumeDownloadPage({ params, searchParams }: Resum
   }
 
   const { data: persona } = resume.persona_id
-    ? await supabase
+    ? await supabaseAdmin
         .from("personas")
         .select("id, user_id, visibility")
         .eq("id", resume.persona_id)
@@ -55,13 +61,27 @@ export default async function ResumeDownloadPage({ params, searchParams }: Resum
   }
 
   return (
-    <main className="min-h-screen bg-[#f3f4f6] p-6 print:bg-white print:p-0">
-      <ResumePrintTrigger autoPrint={autoprint === "1"} />
-      <div className="mx-auto w-full max-w-[794px] bg-white shadow-2xl print:max-w-none print:shadow-none">
-        <div className="min-h-[1123px]">
-          <ResumeTemplateView resume={resume} />
+    <>
+      {/* Force full color printing across all browsers */}
+      <style>{`
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        @media print {
+          body { margin: 0; padding: 0; }
+          @page { margin: 0; size: A4 portrait; }
+        }
+      `}</style>
+      <main className="min-h-screen bg-[#f3f4f6] p-6 print:bg-white print:p-0">
+        <ResumePrintTrigger autoPrint={autoprint === "1"} />
+        <div className="mx-auto w-full max-w-[794px] bg-white shadow-2xl print:max-w-none print:shadow-none">
+          <div className="min-h-[1123px]">
+            <ResumeTemplateView resume={resume} />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }

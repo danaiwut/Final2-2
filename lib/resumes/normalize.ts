@@ -3,6 +3,8 @@ const COLOR_TO_HEX: Record<string, string> = {
   blue: "#3B82F6",
   green: "#10B981",
   purple: "#8B5CF6",
+  red: "#DC2626",
+  orange: "#F97316",
   monochrome: "#0F172A",
 }
 
@@ -11,8 +13,8 @@ const HEX_TO_COLOR: Record<string, string> = {
   "#3b82f6": "blue",
   "#10b981": "green",
   "#8b5cf6": "purple",
-  "#dc2626": "brown",
-  "#f97316": "brown",
+  "#dc2626": "red",
+  "#f97316": "orange",
   "#0f172a": "monochrome",
 }
 
@@ -27,11 +29,12 @@ export function resumeColorToHex(color?: string | null) {
 
 export function normalizeResumeColor(color?: string | null) {
   if (!color) return DEFAULT_COLOR
+  // Already a named color
   if (!color.startsWith("#")) {
     return COLOR_TO_HEX[color] ? color : DEFAULT_COLOR
   }
-
-  return HEX_TO_COLOR[color.toLowerCase()] || DEFAULT_COLOR
+  // Hex → named color (or store hex directly if not in map)
+  return HEX_TO_COLOR[color.toLowerCase()] ?? color
 }
 
 export function normalizeResumePayload<T extends Record<string, any>>(

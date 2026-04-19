@@ -40,6 +40,14 @@ export default async function CompanyApplicationsPage() {
     : { data: [] }
 
   const profileMap = new Map((applicantProfiles || []).map((p) => [p.id, p]))
+  const resumeIds = [...new Set((applications || []).map((a) => a.resume_id).filter(Boolean))]
+  const { data: resumes } = resumeIds.length > 0
+    ? await supabase
+        .from("resumes")
+        .select("*")
+        .in("id", resumeIds)
+    : { data: [] }
+  const resumeMap = new Map((resumes || []).map((resume) => [resume.id, resume]))
 
   const statusConfig: Record<string, { color: string; icon: any }> = {
     pending: { color: "bg-amber-100 text-amber-700", icon: Clock },
@@ -129,6 +137,7 @@ export default async function CompanyApplicationsPage() {
                         {app.resume_id && (
                           <ResumeDownloadButton
                             resumeId={app.resume_id}
+                            resume={resumeMap.get(app.resume_id) || null}
                             ownerUserId={app.user_id}
                             variant="outline"
                             size="sm"

@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Save, Printer, ArrowLeft } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Save, ArrowLeft, Plus, X, Download } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TemplateOne, TemplateTwo, TemplateThree, TemplateFour } from "./resume-template-views"
@@ -28,7 +30,6 @@ const COLORS = ["#3B2A1A", "#3B82F6", "#10B981", "#8B5CF6", "#DC2626", "#F97316"
 
 export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEditorProps) {
   const router = useRouter()
-  const previewRef = useRef<HTMLDivElement | null>(null)
   const [formData, setFormData] = useState({
     ...resume,
     template_style: resume.template_style || "modern",
@@ -37,6 +38,9 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const prevPersonaIdRef = useRef<string | null>(null)
+  const [newSkill, setNewSkill] = useState("")
+
+  const getArray = (val: any) => Array.isArray(val) ? val : []
 
   useEffect(() => {
     const personaId = formData.persona_id
@@ -96,34 +100,61 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
     }
   }
 
-  const handlePrint = () => {
-    const previewNode = previewRef.current
-    if (!previewNode) {
-      window.print()
-      return
-    }
+  const handleDownloadPDF = () => {
+    if (!resume?.id) return
+    window.open(`/resumes/${resume.id}/download?autoprint=1`, "_blank")
+  }
 
-    const originalTitle = document.title
-    const resumeTitle = `${(formData.full_name || formData.title || "resume").trim()} Resume`
+  const updateField = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }))
+  }
 
-    document.body.classList.add("resume-print-mode")
-    previewNode.classList.add("resume-print-target")
-    document.title = resumeTitle
+  const updateArrayItem = (field: "experience" | "education" | "projects", index: number, key: string, value: string) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      [field]: getArray(prev[field]).map((item: Record<string, any>, itemIndex: number) =>
+        itemIndex === index ? { ...item, [key]: value } : item
+      ),
+    }))
+  }
 
-    const cleanup = () => {
-      document.body.classList.remove("resume-print-mode")
-      previewNode.classList.remove("resume-print-target")
-      document.title = originalTitle
-      window.removeEventListener("afterprint", cleanup)
-    }
+  const addArrayItem = (field: "experience" | "education" | "projects") => {
+    const emptyItem =
+      field === "experience"
+        ? { title: "", company: "", duration: "", description: "" }
+        : field === "education"
+          ? { degree: "", field: "", institution: "", graduation_year: "" }
+          : { title: "", description: "", technologies: [] }
 
-    window.addEventListener("afterprint", cleanup, { once: true })
+    setFormData((prev: any) => ({
+      ...prev,
+      [field]: [...getArray(prev[field]), emptyItem],
+    }))
+  }
 
-    try {
-      window.print()
-    } finally {
-      window.setTimeout(cleanup, 500)
-    }
+  const removeArrayItem = (field: "experience" | "education" | "projects", index: number) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      [field]: getArray(prev[field]).filter((_: unknown, itemIndex: number) => itemIndex !== index),
+    }))
+  }
+
+  const addSkill = () => {
+    const trimmed = newSkill.trim()
+    if (!trimmed) return
+
+    setFormData((prev: any) => ({
+      ...prev,
+      skills: [...getArray(prev.skills), trimmed],
+    }))
+    setNewSkill("")
+  }
+
+  const removeSkill = (index: number) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      skills: getArray(prev.skills).filter((_: unknown, itemIndex: number) => itemIndex !== index),
+    }))
   }
 
   const renderPreview = () => {
@@ -151,10 +182,16 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
           <p className="text-[#6B4C30]">Select your persona and choose a design template</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-[#A07850] text-[#A07850]" onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print / Save PDF
-          </Button>
+          {!isNew && (
+            <Button
+              variant="outline"
+              className="border-[#A07850] text-[#A07850] gap-2"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="h-4 w-4" />
+              Download PDF
+            </Button>
+          )}
           <Button
             onClick={handleSave}
             disabled={isSaving}
@@ -192,7 +229,7 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
                     <SelectValue placeholder="Choose a persona..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {personas.map((p) => (
+                    {getArray(personas).map((p: any) => (
                       <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                     ))}
                   </SelectContent>
@@ -201,13 +238,229 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
 
               {formData.persona_id && (
                 <div className="p-3 bg-[#F5EDE2] rounded-md text-sm text-[#6B4C30] border border-[#D4B896]">
-                  Data is synced from Persona: <strong>{personas.find(p => p.id === formData.persona_id)?.name}</strong>
+                  Prefilled from Persona: <strong>{getArray(personas).find((p: any) => p.id === formData.persona_id)?.name}</strong>
                   <br /><br />
                   <span className="text-xs opacity-80">
-                    Cannot modify the text directly here. Update your persona settings to change data.
+                    You can still edit the resume details below before saving or downloading.
                   </span>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896]">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Basic Details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input id="full_name" value={formData.full_name || ""} onChange={(e) => updateField("full_name", e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title">Professional Title</Label>
+                <Input id="title" value={formData.title || ""} onChange={(e) => updateField("title", e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="summary">Summary</Label>
+                <Textarea
+                  id="summary"
+                  rows={5}
+                  value={formData.summary || ""}
+                  onChange={(e) => updateField("summary", e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896]">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Contact</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" value={formData.email || ""} onChange={(e) => updateField("email", e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" value={formData.phone || ""} onChange={(e) => updateField("phone", e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input id="location" value={formData.location || ""} onChange={(e) => updateField("location", e.target.value)} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" value={formData.website || ""} onChange={(e) => updateField("website", e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin">LinkedIn</Label>
+                  <Input id="linkedin" value={formData.linkedin || ""} onChange={(e) => updateField("linkedin", e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="github">GitHub</Label>
+                <Input id="github" value={formData.github || ""} onChange={(e) => updateField("github", e.target.value)} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896]">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Skills</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newSkill}
+                  placeholder="Add a skill"
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      addSkill()
+                    }
+                  }}
+                />
+                <Button type="button" variant="outline" onClick={addSkill}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {getArray(formData.skills).map((skill: any, index: number) => (
+                  <span
+                    key={`${typeof skill === "string" ? skill : skill?.name || index}-${index}`}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#F5EDE2] px-3 py-1 text-xs text-[#6B4C30]"
+                  >
+                    {typeof skill === "string" ? skill : skill?.name || ""}
+                    <button type="button" onClick={() => removeSkill(index)}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896] flex flex-row items-center justify-between">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Experience</CardTitle>
+              <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("experience")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add
+              </Button>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              {getArray(formData.experience).length === 0 && (
+                <p className="text-sm text-[#9B8577]">No experience entries yet.</p>
+              )}
+              {getArray(formData.experience).map((item: any, index: number) => (
+                <div key={index} className="rounded-lg border border-[#E8DDD1] p-4 space-y-3">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeArrayItem("experience", index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Job Title</Label>
+                      <Input value={item.title || ""} onChange={(e) => updateArrayItem("experience", index, "title", e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Company</Label>
+                      <Input value={item.company || ""} onChange={(e) => updateArrayItem("experience", index, "company", e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Duration</Label>
+                    <Input value={item.duration || ""} onChange={(e) => updateArrayItem("experience", index, "duration", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea rows={4} value={item.description || ""} onChange={(e) => updateArrayItem("experience", index, "description", e.target.value)} />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896] flex flex-row items-center justify-between">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Education</CardTitle>
+              <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("education")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add
+              </Button>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              {getArray(formData.education).length === 0 && (
+                <p className="text-sm text-[#9B8577]">No education entries yet.</p>
+              )}
+              {getArray(formData.education).map((item: any, index: number) => (
+                <div key={index} className="rounded-lg border border-[#E8DDD1] p-4 space-y-3">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeArrayItem("education", index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Degree</Label>
+                      <Input value={item.degree || ""} onChange={(e) => updateArrayItem("education", index, "degree", e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Field</Label>
+                      <Input value={item.field || ""} onChange={(e) => updateArrayItem("education", index, "field", e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Institution</Label>
+                      <Input value={item.institution || ""} onChange={(e) => updateArrayItem("education", index, "institution", e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Graduation Year</Label>
+                      <Input value={item.graduation_year || ""} onChange={(e) => updateArrayItem("education", index, "graduation_year", e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border border-[#D4B896] bg-white shadow-sm">
+            <CardHeader className="bg-[#F5EDE2] border-b border-[#D4B896] flex flex-row items-center justify-between">
+              <CardTitle className="font-['Playfair_Display'] text-[#3B2A1A]">Projects</CardTitle>
+              <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("projects")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add
+              </Button>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              {getArray(formData.projects).length === 0 && (
+                <p className="text-sm text-[#9B8577]">No projects entries yet.</p>
+              )}
+              {getArray(formData.projects).map((item: any, index: number) => (
+                <div key={index} className="rounded-lg border border-[#E8DDD1] p-4 space-y-3">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeArrayItem("projects", index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Project Title</Label>
+                    <Input value={item.title || ""} onChange={(e) => updateArrayItem("projects", index, "title", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea rows={4} value={item.description || ""} onChange={(e) => updateArrayItem("projects", index, "description", e.target.value)} />
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
@@ -255,7 +508,6 @@ export function ResumeEditor({ resume, isNew = false, personas = [] }: ResumeEdi
         {/* Right Panel - Live Preview */}
         <div className="resume-editor-shell xl:col-span-8 flex justify-center bg-gray-100 rounded-xl p-4 border border-gray-200 shadow-inner overflow-auto h-[800px]">
           <div
-            ref={previewRef}
             className="resume-preview-sheet w-full max-w-[700px] h-fit md:h-[900px] bg-white shadow-2xl rounded-sm"
           >
             {renderPreview()}
