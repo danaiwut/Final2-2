@@ -19,9 +19,25 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen bg-[#FDFAF6]">
       <DashboardSidebar user={user} profile={profile} />
-      <div className="flex flex-1 flex-col pl-64">
+      <div className="flex flex-1 flex-col pl-64 w-full">
         <AdSpace placement="header" />
-        <main className="flex-1">{children}</main>
+        
+        <div className="flex flex-1 justify-center items-start">
+          {/* Universal Left Sidebar Ad */}
+          <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
+            <AdSpace placement="sidebar_left" className="sticky top-6 mt-6" />
+          </div>
+          
+          <main className="flex-1 min-w-0 w-full max-w-[1200px]">
+            {children}
+          </main>
+
+          {/* Universal Right Sidebar Ad */}
+          <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
+            <AdSpace placement="sidebar_right" className="sticky top-6 mt-6" />
+          </div>
+        </div>
+
         <AdSpace placement="footer" />
       </div>
     </div>

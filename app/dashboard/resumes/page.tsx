@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Plus, FileText, Edit, Clock } from "lucide-react"
 import { ResumeDownloadButton } from "@/components/resumes/resume-download-button"
 import { DeleteResumeButton } from "@/components/resumes/delete-resume-button"
+import { AdSpace } from "@/components/ads/ad-space"
 
 interface Resume {
   id: string

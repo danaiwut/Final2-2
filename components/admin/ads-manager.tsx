@@ -33,6 +33,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
     image_url: "",
     link_url: "",
     placement: "sidebar",
+    target_page: "all",
     is_active: true,
     start_date: "",
     end_date: "",
@@ -83,6 +84,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
       image_url: ad.image_url || "",
       link_url: ad.link_url || "",
       placement: ad.placement,
+      target_page: ad.target_page || "all",
       is_active: ad.is_active,
       start_date: ad.start_date || "",
       end_date: ad.end_date || "",
@@ -97,6 +99,7 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
       image_url: "",
       link_url: "",
       placement: "sidebar",
+      target_page: "all",
       is_active: true,
       start_date: "",
       end_date: "",
@@ -242,9 +245,32 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                       <SelectContent>
                         <SelectItem value="header">Header</SelectItem>
                         <SelectItem value="banner">Top Banner</SelectItem>
-                        <SelectItem value="sidebar">Right Sidebar</SelectItem>
+                        <SelectItem value="sidebar_left">Left Sidebar</SelectItem>
+                        <SelectItem value="sidebar_right">Right Sidebar</SelectItem>
                         <SelectItem value="feed">In-Feed Layout</SelectItem>
                         <SelectItem value="footer">Footer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium flex items-center gap-2">
+                      <Target className="h-4 w-4 text-slate-400" />
+                      Target Page
+                    </Label>
+                    <Select
+                      value={formData.target_page}
+                      onValueChange={(value) => setFormData({ ...formData, target_page: value })}
+                    >
+                      <SelectTrigger className="border-slate-200 focus-visible:ring-indigo-500 bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Pages</SelectItem>
+                        <SelectItem value="dashboard">Dashboard</SelectItem>
+                        <SelectItem value="resumes">My Resumes</SelectItem>
+                        <SelectItem value="jobs">Jobs Board</SelectItem>
+                        <SelectItem value="community">Community</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -354,9 +380,16 @@ export function AdsManager({ ads, adminId }: AdsManagerProps) {
                 <Badge variant={ad.is_active ? "default" : "secondary"} className={ad.is_active ? "bg-green-500 hover:bg-green-600 shadow-sm" : "bg-slate-600 shadow-sm"}>
                   {ad.is_active ? "Active" : "Paused"}
                 </Badge>
-                <Badge className="bg-white/90 text-slate-700 hover:bg-white border-none shadow-sm backdrop-blur-sm capitalize">
-                  {ad.placement}
-                </Badge>
+                <div className="flex gap-1">
+                  <Badge className="bg-white/90 text-slate-700 hover:bg-white border-none shadow-sm backdrop-blur-sm capitalize">
+                    {ad.placement}
+                  </Badge>
+                  {ad.target_page && ad.target_page !== 'all' && (
+                    <Badge variant="outline" className="bg-white/90 text-indigo-700 border-indigo-200 hover:bg-white shadow-sm backdrop-blur-sm capitalize">
+                      {ad.target_page}
+                    </Badge>
+                  )}
+                </div>
               </div>
               
               {/* Actions Overlay */}

@@ -48,7 +48,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-6">
+      <div className="mt-8 flex justify-center">
         <AdSpace placement="banner" />
       </div>
 

@@ -336,7 +336,7 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
                 </article>
 
                 {(index + 1) % 3 === 0 && index !== filteredJobs.length - 1 && (
-                  <AdSpace key={`ad-${index}`} placement="feed" />
+                  <AdSpace key={`ad-${index}`} placement="feed" targetPage="jobs" />
                 )}
               </div>
             )
