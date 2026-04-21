@@ -257,9 +257,8 @@ export function CommunityChatSidebar({ currentUserId }: CommunityChatSidebarProp
                     return (
                       <div key={msg.id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
                         <div
-                          className={`max-w-[75%] rounded-lg p-2 break-words ${
-                            isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
-                          }`}
+                          className={`max-w-[75%] rounded-lg p-2 break-words ${isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                            }`}
                         >
                           <p className="text-sm break-words whitespace-pre-wrap">{msg.message}</p>
                           <p

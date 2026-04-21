@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Eye, Briefcase, GraduationCap, ArrowRight, TrendingUp } from "lucide-react"
+import { ArrowRight, TrendingUp, Eye, Briefcase, GraduationCap } from "lucide-react"
 import Link from "next/link"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
+import { PersonaPreview } from "./persona-preview"
+import { createClient } from "@/lib/supabase/client"
 
 interface CommunityPersonasProps {
   personas: any[]
@@ -17,6 +20,15 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [industryFilter, setIndustryFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState("views")
+  const [viewIncrements, setViewIncrements] = useState<Record<string, number>>({})
+  const supabase = createClient()
+
+  const handleOpenDialog = async (personaId: string, isOpen: boolean) => {
+    if (isOpen && !viewIncrements[personaId]) {
+      setViewIncrements((prev) => ({ ...prev, [personaId]: 1 }))
+      await supabase.rpc("increment_persona_views", { p_persona_id: personaId })
+    }
+  }
 
   const industries = Array.from(new Set(personas.map((p) => p.career?.industry).filter(Boolean)))
 
@@ -31,8 +43,11 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
     })
 
     filtered.sort((a, b) => {
+      const viewsA = (a.views_count || 0) + (viewIncrements[a.id] || 0)
+      const viewsB = (b.views_count || 0) + (viewIncrements[b.id] || 0)
+
       switch (sortBy) {
-        case "views":  return (b.views_count || 0) - (a.views_count || 0)
+        case "views":  return viewsB - viewsA
         case "recent": return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         case "name":   return a.name.localeCompare(b.name)
         default:       return 0
@@ -40,7 +55,7 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
     })
 
     return filtered
-  }, [personas, searchQuery, industryFilter, sortBy])
+  }, [personas, searchQuery, industryFilter, sortBy, viewIncrements])
 
   return (
     <div className="space-y-6">
@@ -86,7 +101,8 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
       {filteredPersonas.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredPersonas.map((persona, idx) => {
-            const isTopViewed = idx < 3 && sortBy === "views" && (persona.views_count || 0) > 0
+            const currentViews = (persona.views_count || 0) + (viewIncrements[persona.id] || 0)
+            const isTopViewed = idx < 3 && sortBy === "views" && currentViews > 0
             return (
               <div
                 key={persona.id}
@@ -165,15 +181,20 @@ export function CommunityPersonas({ personas }: CommunityPersonasProps) {
                   <div className="flex items-center justify-between pt-3 border-t border-[#F0E8DE]">
                     <div className="flex items-center gap-1.5 text-sm text-[#9B8577]">
                       <Eye className="h-4 w-4" />
-                      <span>{persona.views_count || 0} views</span>
+                      <span>{currentViews} views</span>
                     </div>
-                    <Link
-                      href={`/community/personas/${persona.id}`}
-                      className="flex items-center gap-1 text-sm font-medium text-[#A07850] hover:text-[#7A5C38] group/link transition-colors"
-                    >
-                      View Profile
-                      <ArrowRight className="h-3.5 w-3.5 group-hover/link:translate-x-0.5 transition-transform" />
-                    </Link>
+                    <Dialog onOpenChange={(isOpen) => handleOpenDialog(persona.id, isOpen)}>
+                      <DialogTrigger asChild>
+                        <button className="flex items-center gap-1 text-sm font-medium text-[#A07850] hover:text-[#7A5C38] group/link transition-colors">
+                          View Profile
+                          <ArrowRight className="h-3.5 w-3.5 group-hover/link:translate-x-0.5 transition-transform" />
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#FDFAF6] border-[#D4B896]">
+                        <DialogTitle className="sr-only">Persona Profile Preview</DialogTitle>
+                        <PersonaPreview persona={{...persona, views_count: currentViews}} />
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>
