@@ -57,6 +57,8 @@ const colorSchemes = [
   { id: "green", color: "#10B981", name: "Green" },
   { id: "purple", color: "#8B5CF6", name: "Purple" },
   { id: "monochrome", color: "#374151", name: "Monochrome" },
+  { id: "red", color: "#EF4444", name: "Red" },
+  { id: "orange", color: "#F97316", name: "Orange" },
 ]
 
 export function ResumeTemplates({

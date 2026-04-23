@@ -129,24 +129,33 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
     return filtered.sort((a, b) => b.match_score - a.match_score)
   }, [jobs, selectedPersona, searchQuery, filter, personas, jobMatches])
 
-  const handleSaveJob = async (jobId: string) => {
+  const handleToggleSaveJob = async (jobId: string) => {
     setSavingJobId(jobId)
     try {
       const existingMatch = jobMatches.find((m) => m.job_id === jobId)
-      if (existingMatch) {
-        await supabase.from("job_matches").update({ status: "saved" }).eq("id", existingMatch.id)
+  
+      if (existingMatch && existingMatch.status === "saved") {
+        // Cancel Save (ลบงานที่บันทึกไว้)
+        await supabase.from("job_matches").delete().eq("id", existingMatch.id)
       } else {
-        await supabase.from("job_matches").insert({
-          user_id: userId,
-          job_id: jobId,
-          persona_id: selectedPersona !== "all" ? selectedPersona : personas[0]?.id,
-          status: "saved",
-          match_score: filteredJobs.find((j) => j.id === jobId)?.match_score || 0,
-        })
+        // Save Job (บันทึกงานใหม่)
+        if (existingMatch) {
+          await supabase.from("job_matches").update({ status: "saved" }).eq("id", existingMatch.id)
+        } else {
+          await supabase.from("job_matches").insert({
+            user_id: userId,
+            job_id: jobId,
+            persona_id: selectedPersona !== "all" ? selectedPersona : personas[0]?.id,
+            status: "saved",
+            match_score: filteredJobs.find((j) => j.id === jobId)?.match_score || 0,
+          })
+        }
       }
+  
+      // Optional: Refresh the page or update state
       window.location.reload()
     } catch (error) {
-      console.error("Error saving job:", error)
+      console.error("Error toggling save job:", error)
     } finally {
       setSavingJobId(null)
     }
@@ -250,17 +259,18 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
                       </div>
 
                       {/* Save button */}
-                      <button
-                        onClick={() => handleSaveJob(job.id)}
-                        disabled={savingJobId === job.id}
-                        className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 border ${
-                          saved
-                            ? "bg-[#A07850] border-[#A07850] text-white"
-                            : "bg-white border-[#E8DDD1] text-[#9B8577] hover:border-[#A07850] hover:text-[#A07850]"
-                        }`}
-                      >
-                        {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                      </button>
+                      {/* Save button */}
+                <button
+                   onClick={() => handleToggleSaveJob(job.id)} // เปลี่ยนฟังก์ชันเป็น handleToggleSaveJob
+                    disabled={savingJobId === job.id}
+                    className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 border ${
+                      saved
+                      ? "bg-[#A07850] border-[#A07850] text-white"
+                      : "bg-white border-[#E8DDD1] text-[#9B8577] hover:border-[#A07850] hover:text-[#A07850]"
+                     }`}
+>
+                    {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                    </button>
                     </div>
 
                     {/* Description */}
