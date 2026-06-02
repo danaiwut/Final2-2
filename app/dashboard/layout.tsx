@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { AdSpace } from "@/components/ads/ad-space"
+import { SidebarProvider } from "@/components/ui/sidebar"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -17,29 +18,31 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   return (
-    <div className="flex min-h-screen bg-[#FDFAF6]">
-      <DashboardSidebar user={user} profile={profile} />
-      <div className="flex flex-1 flex-col pl-64 w-full">
-        <AdSpace placement="header" />
-        
-        <div className="flex flex-1 justify-center items-start">
-          {/* Universal Left Sidebar Ad */}
-          <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
-            <AdSpace placement="sidebar_left" className="sticky top-6 mt-6" />
-          </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full overflow-x-hidden bg-[#FDFAF6]">
+        <DashboardSidebar user={user} profile={profile} />
+        <div className="flex min-w-0 flex-1 flex-col w-full">
+          <AdSpace placement="header" />
           
-          <main className="flex-1 min-w-0 w-full max-w-[1200px]">
-            {children}
-          </main>
+          <div className="flex min-w-0 flex-1 items-start justify-center">
+            {/* Universal Left Sidebar Ad */}
+            <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
+              <AdSpace placement="sidebar_left" className="sticky top-6 mt-6" />
+            </div>
+            
+            <main className="min-w-0 w-full max-w-[1200px] px-6">
+              {children}
+            </main>
 
-          {/* Universal Right Sidebar Ad */}
-          <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
-            <AdSpace placement="sidebar_right" className="sticky top-6 mt-6" />
+            {/* Universal Right Sidebar Ad */}
+            <div className="hidden xl:block shrink-0 px-6 max-w-[280px]">
+              <AdSpace placement="sidebar_right" className="sticky top-6 mt-6" />
+            </div>
           </div>
-        </div>
 
-        <AdSpace placement="footer" />
+          <AdSpace placement="footer" />
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   )
 }
