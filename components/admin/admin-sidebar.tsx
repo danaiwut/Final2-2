@@ -169,12 +169,12 @@ export function AdminSidebar({ user, profile }: AdminSidebarProps) {
   }
 
   return (
-    <div className="flex h-screen bg-[#FDFAF6] border-r border-[#E8DDD1]">
+    <div className="flex h-auto self-start bg-[#FDFAF6] border-r border-[#E8DDD1]">
       <Sidebar
         side="left"
         variant="sidebar"
         collapsible="none"
-        className="w-64 border-r border-[#E8DDD1] bg-[#FDFAF6]"
+        className="h-auto w-64 border-r border-[#E8DDD1] bg-[#FDFAF6]"
       >
         {!activeItem ? (
           <>

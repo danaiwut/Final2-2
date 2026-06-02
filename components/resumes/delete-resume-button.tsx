@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Loader2, Trash2 } from "lucide-react"
@@ -24,6 +24,11 @@ interface DeleteResumeButtonProps {
 export function DeleteResumeButton({ resumeId, resumeTitle }: DeleteResumeButtonProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -44,6 +49,23 @@ export function DeleteResumeButton({ resumeId, resumeTitle }: DeleteResumeButton
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  if (!isMounted) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1 text-xs border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600"
+        onClick={() => {
+          if (window.confirm(`Delete "${resumeTitle}"? This action cannot be undone.`)) {
+            handleDelete()
+          }
+        }}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </Button>
+    )
   }
 
   return (

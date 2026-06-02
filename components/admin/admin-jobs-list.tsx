@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,8 @@ export function AdminJobsList({ jobs }: AdminJobsListProps) {
   const supabase = createClient()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const JOBS_PER_PAGE = 8
 
   const handleDelete = async (jobId: string) => {
     setIsDeleting(true)
@@ -43,6 +45,15 @@ export function AdminJobsList({ jobs }: AdminJobsListProps) {
       setIsDeleting(false)
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(jobs.length / JOBS_PER_PAGE))
+  const paginatedJobs = jobs.slice((currentPage - 1) * JOBS_PER_PAGE, currentPage * JOBS_PER_PAGE)
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   if (jobs.length === 0) {
     return (
@@ -65,7 +76,7 @@ export function AdminJobsList({ jobs }: AdminJobsListProps) {
   return (
     <>
       <div className="space-y-4">
-        {jobs.map((job) => (
+        {paginatedJobs.map((job) => (
           <Card key={job.id}>
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -128,6 +139,33 @@ export function AdminJobsList({ jobs }: AdminJobsListProps) {
           </Card>
         ))}
       </div>
+
+      {jobs.length > JOBS_PER_PAGE && (
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Page <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
+            <span className="font-semibold text-foreground">{totalPages}</span>
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>

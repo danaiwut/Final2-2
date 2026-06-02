@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,6 +42,8 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
   const [searchQuery, setSearchQuery] = useState("")
   const [savingJobId, setSavingJobId] = useState<string | null>(null)
   const [applyingJobId, setApplyingJobId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const JOBS_PER_PAGE = 8
 
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
   const [selectedJobToApply, setSelectedJobToApply] = useState<Job | null>(null)
@@ -128,6 +130,19 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
     else if (filter === "high-match") filtered = filtered.filter((job) => job.match_score >= 60)
     return filtered.sort((a, b) => b.match_score - a.match_score)
   }, [jobs, selectedPersona, searchQuery, filter, personas, jobMatches])
+
+  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / JOBS_PER_PAGE))
+  const paginatedJobs = filteredJobs.slice((currentPage - 1) * JOBS_PER_PAGE, currentPage * JOBS_PER_PAGE)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedPersona, searchQuery, filter, jobs.length])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const handleToggleSaveJob = async (jobId: string) => {
     setSavingJobId(jobId)
@@ -220,8 +235,9 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
 
       {/* Job Cards */}
       {filteredJobs.length > 0 ? (
+        <>
         <div className="space-y-3">
-          {filteredJobs.map((job, index) => {
+          {paginatedJobs.map((job, index) => {
             const saved = isJobSaved(job.id)
             const applied = isJobApplied(job.id)
 
@@ -352,6 +368,36 @@ export function JobsList({ jobs, personas, jobMatches, resumes, userId }: JobsLi
             )
           })}
         </div>
+
+        {filteredJobs.length > JOBS_PER_PAGE && (
+          <div className="flex flex-col gap-3 rounded-2xl border border-[#E8DDD1] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[#9B8577]">
+              Page <span className="font-semibold text-[#3B2A1A]">{currentPage}</span> of{" "}
+              <span className="font-semibold text-[#3B2A1A]">{totalPages}</span>
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                className="border-[#D4B896] text-[#6B4C30] hover:bg-[#F5EDE2]"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                className="border-[#D4B896] text-[#6B4C30] hover:bg-[#F5EDE2]"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-[#E8DDD1]">
           <div className="w-16 h-16 rounded-2xl bg-[#F5EDE2] flex items-center justify-center mb-4">

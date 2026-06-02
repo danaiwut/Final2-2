@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,8 @@ export function AdminCommunityPosts({ posts, currentUserId }: AdminCommunityPost
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string>("")
   const [rejectionReason, setRejectionReason] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const POSTS_PER_PAGE = 8
 
   const filterOptions = ["all", "pending", "approved", "rejected", "text", "project", "achievement", "question"]
 
@@ -43,6 +45,19 @@ export function AdminCommunityPosts({ posts, currentUserId }: AdminCommunityPost
     }
     return post.post_type === filter
   })
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE))
+  const paginatedPosts = filteredPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const handleSendMessage = async (userId: string) => {
     try {
@@ -150,8 +165,9 @@ export function AdminCommunityPosts({ posts, currentUserId }: AdminCommunityPost
       </div>
 
       {filteredPosts.length > 0 ? (
-        <div className="space-y-4">
-          {filteredPosts.map((post) => {
+        <>
+          <div className="space-y-4">
+            {paginatedPosts.map((post) => {
             const moderationStatus = post.moderation_status || "pending"
 
             return (
@@ -251,8 +267,36 @@ export function AdminCommunityPosts({ posts, currentUserId }: AdminCommunityPost
                 </CardContent>
               </Card>
             )
-          })}
-        </div>
+            })}
+          </div>
+
+          {filteredPosts.length > POSTS_PER_PAGE && (
+            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Page <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
+                <span className="font-semibold text-foreground">{totalPages}</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -26,6 +26,8 @@ export function CommunityPosts({ posts, currentUserId }: CommunityPostsProps) {
   const router = useRouter()
   const [filter, setFilter] = useState<string>("all")
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
+  const [currentPage, setCurrentPage] = useState(1)
+  const POSTS_PER_PAGE = 8
 
   const categoryFilters = [
     { key: "all",     label: "All Posts",  icon: <Sparkles className="h-3.5 w-3.5" /> },
@@ -41,6 +43,19 @@ export function CommunityPosts({ posts, currentUserId }: CommunityPostsProps) {
     if (filter === "hot") return (post.likes_count || 0) >= 5
     return true
   })
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE))
+  const paginatedPosts = filteredPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const handleLike = async (postId: string) => {
     setLikedPosts(prev => {
@@ -110,8 +125,9 @@ export function CommunityPosts({ posts, currentUserId }: CommunityPostsProps) {
 
       {/* Posts */}
       {filteredPosts.length > 0 ? (
-        <div className="space-y-3">
-          {filteredPosts.map((post) => {
+        <>
+          <div className="space-y-3">
+            {paginatedPosts.map((post) => {
             const isCompanyPost = post.poster_type === "company"
             const isVerified = post.profiles?.verification_status === "verified"
             const typeStyle = POST_TYPE_STYLES[post.post_type] || POST_TYPE_STYLES.text
@@ -245,8 +261,38 @@ export function CommunityPosts({ posts, currentUserId }: CommunityPostsProps) {
                 </div>
               </article>
             )
-          })}
-        </div>
+            })}
+          </div>
+
+          {filteredPosts.length > POSTS_PER_PAGE && (
+            <div className="flex flex-col gap-3 rounded-2xl border border-[#E8DDD1] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-[#9B8577]">
+                Page <span className="font-semibold text-[#3B2A1A]">{currentPage}</span> of{" "}
+                <span className="font-semibold text-[#3B2A1A]">{totalPages}</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  className="border-[#D4B896] text-[#6B4C30] hover:bg-[#F5EDE2]"
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  className="border-[#D4B896] text-[#6B4C30] hover:bg-[#F5EDE2]"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-[#E8DDD1]">
           <div className="w-16 h-16 rounded-2xl bg-[#F5EDE2] flex items-center justify-center mb-4">
