@@ -7,7 +7,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full items-start overflow-x-hidden bg-[#FDFAF6]">
+      <div className="flex min-h-screen w-full bg-[#FDFAF6]">
         <AdminSidebar user={user} profile={profile} />
         <div className="flex min-w-0 flex-1 flex-col w-full">
           <main className="min-w-0 flex-1 w-full">{children}</main>

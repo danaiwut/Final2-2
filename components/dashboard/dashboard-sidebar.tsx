@@ -304,12 +304,12 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   }
 
   return (
-    <div className="flex h-auto self-start bg-[#FDFAF6] border-r border-[#E8DDD1]">
+    <div className="sticky top-0 h-screen bg-[#FDFAF6] border-r border-[#E8DDD1]">
       <Sidebar
         side="left"
         variant="sidebar"
         collapsible="none"
-        className="h-auto w-64 border-r border-[#E8DDD1] bg-[#FDFAF6]"
+        className="h-full w-64 border-r border-[#E8DDD1] bg-[#FDFAF6]"
       >
         {!activeItem ? (
           <>
@@ -368,50 +368,31 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             </SidebarContent>
 
             <SidebarFooter className="border-t border-[#E8DDD1] p-3 bg-[#FDFAF6]">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    className="w-full h-12 px-3 hover:bg-[#F0E6D8] rounded-lg text-[#3B2A1A] cursor-pointer"
-                  >
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      className="flex w-full items-center gap-3"
-                      onClick={() => router.push("/dashboard/profile")}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault()
-                          router.push("/dashboard/profile")
-                        }
-                      }}
-                    >
-                      <Avatar className="h-8 w-8 rounded-full bg-[#D4B896]">
-                        <AvatarFallback className="rounded-full text-xs font-semibold text-[#3B2A1A]">
-                          {initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="text-sm font-medium truncate">{displayName}</div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {user.email}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSignOut()
-                        }}
-                        className="ml-auto rounded-md p-1.5 transition-colors hover:bg-[#E8DDD1]"
-                        title="Sign Out"
-                      >
-                        <IconLogout className="h-4 w-4 shrink-0 text-[#A07850]" />
-                      </button>
-                    </div>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
+              <div
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#F0E6D8] transition-colors cursor-pointer"
+                onClick={() => router.push("/dashboard/profile")}
+              >
+                <Avatar className="h-8 w-8 rounded-full bg-[#D4B896]">
+                  <AvatarFallback className="rounded-full text-xs font-semibold text-[#3B2A1A]">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate text-[#3B2A1A]">{displayName}</div>
+                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSignOut()
+                  }}
+                  className="p-1.5 hover:bg-[#E8DDD1] rounded-md transition-colors"
+                  title="Sign Out"
+                >
+                  <IconLogout className="h-4 w-4 shrink-0 text-[#A07850]" />
+                </button>
+              </div>
             </SidebarFooter>
           </>
         ) : (

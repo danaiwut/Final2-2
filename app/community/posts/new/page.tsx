@@ -21,7 +21,7 @@ export default async function NewPostPage() {
   const { data: personas } = await supabase.from("personas").select("id, name").eq("user_id", user.id).order("name")
 
   return (
-    <div className="flex min-h-screen w-full items-start overflow-x-hidden bg-[#FDFAF6]">
+    <div className="flex min-h-screen w-full bg-[#FDFAF6]">
       <DashboardSidebar user={user} profile={profile} />
       <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
         <main className="min-w-0 w-full flex-1 p-6 md:p-8">

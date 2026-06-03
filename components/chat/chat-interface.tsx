@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Send, Search, MessageSquare, Menu, Trash2 } from "lucide-react"
+import { Send, Search, MessageSquare, Menu, Trash2, Video, Phone, Info, Bold, Italic, Link, Paperclip, Smile, AtSign, Clock, Plus, Pencil, X, Check } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 
@@ -26,6 +26,8 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   const [mobileConversationsOpen, setMobileConversationsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [hoveredMsg, setHoveredMsg] = useState<string | null>(null)
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editingContent, setEditingContent] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
@@ -75,20 +77,25 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
     loadMessages()
     const channel = supabase
       .channel(`chat:${selectedConversation}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
-        const newMsg = payload.new as any
-        if (
-          (newMsg.sender_id === currentUserId && newMsg.receiver_id === otherParticipant?.id) ||
-          (newMsg.sender_id === otherParticipant?.id && newMsg.receiver_id === currentUserId)
-        ) {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev
-            return [...prev, newMsg]
-          })
-          scrollToBottom()
-          if (newMsg.sender_id === otherParticipant?.id) {
-            supabase.from("chat_messages").update({ is_read: true }).eq("id", newMsg.id)
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const newMsg = payload.new as any
+          if (
+            (newMsg.sender_id === currentUserId && newMsg.receiver_id === otherParticipant?.id) ||
+            (newMsg.sender_id === otherParticipant?.id && newMsg.receiver_id === currentUserId)
+          ) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMsg.id)) return prev
+              return [...prev, newMsg]
+            })
+            scrollToBottom()
+            if (newMsg.sender_id === otherParticipant?.id) {
+              supabase.from("chat_messages").update({ is_read: true }).eq("id", newMsg.id)
+            }
           }
+        } else if (payload.eventType === "UPDATE") {
+          const updatedMsg = payload.new as any
+          setMessages((prev) => prev.map((m) => (m.id === updatedMsg.id ? updatedMsg : m)))
         }
       })
       .subscribe()
@@ -140,9 +147,27 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
     try {
       const response = await fetch(`/api/chat/messages/${messageId}`, { method: "DELETE" })
       if (!response.ok) throw new Error("Failed to delete message")
-      setMessages((prev) => prev.filter((m) => m.id !== messageId))
+      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, is_deleted: true, message: "" } : m)))
     } catch (error) {
       console.error("Error deleting message:", error)
+    }
+  }
+
+  const editMessage = async (messageId: string) => {
+    if (!editingContent.trim()) return
+    try {
+      const response = await fetch(`/api/chat/messages/${messageId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: editingContent.trim() }),
+      })
+      if (!response.ok) throw new Error("Failed to edit message")
+      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, is_edited: true, message: editingContent.trim() } : m)))
+      setEditingMessageId(null)
+      setEditingContent("")
+    } catch (error) {
+      console.error("Error editing message:", error)
+      alert("Failed to edit message. Please try again.")
     }
   }
 
@@ -156,32 +181,28 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   // ---- Conversation List (shared between desktop & mobile) ----
   const ConversationList = ({ onSelect }: { onSelect?: () => void }) => (
     <>
-      {/* Search */}
-      <div className="p-3 border-b border-[#E8DDD1]">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9B8577]" />
-          <Input
-            placeholder="Search conversations…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-9 text-sm bg-[#F5EDE2] border-[#E8DDD1] rounded-xl focus-visible:ring-[#A07850] placeholder:text-[#C4B5A5]"
-          />
-        </div>
+      {/* Search and New Message */}
+      <div className="p-4 border-b border-gray-100 space-y-4">
+        <Button className="w-full bg-[#4E39E6] hover:bg-[#3D2AC9] text-white rounded-xl h-11 font-medium gap-2 shadow-sm shadow-[#4E39E6]/20">
+          <Plus className="h-5 w-5" />
+          New Message
+        </Button>
+        <p className="text-xs font-semibold text-gray-400 tracking-wider pt-2">RECENT CHATS</p>
       </div>
 
       {/* List */}
       <ScrollArea className="flex-1">
         {filteredConversations.length === 0 ? (
           <div className="p-6 text-center">
-            <p className="text-sm text-[#9B8577]">No conversations found</p>
+            <p className="text-sm text-gray-500">No conversations found</p>
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="mt-2 text-xs text-[#A07850] hover:underline">
+              <button onClick={() => setSearchQuery("")} className="mt-2 text-xs text-[#4E39E6] hover:underline">
                 Clear search
               </button>
             )}
           </div>
         ) : (
-          <div className="p-2 space-y-0.5">
+          <div className="p-3 space-y-1">
             {filteredConversations.map((conv) => {
               const participant = conv.participant1_id === currentUserId ? conv.participant2 : conv.participant1
               const isActive = selectedConversation === conv.id
@@ -189,24 +210,35 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                 <button
                   key={conv.id}
                   onClick={() => { setSelectedConversation(conv.id); onSelect?.() }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 text-left ${
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-150 text-left relative ${
                     isActive
-                      ? "bg-[#3B2A1A] text-white"
-                      : "hover:bg-[#F5EDE2] text-[#3B2A1A]"
+                      ? "bg-gray-50 text-gray-900"
+                      : "hover:bg-gray-50 text-gray-700"
                   }`}
                 >
-                  <Avatar className="h-9 w-9 flex-shrink-0">
-                    <AvatarImage src={participant?.avatar_url || "/placeholder.svg"} />
-                    <AvatarFallback className={`text-sm font-semibold ${isActive ? "bg-[#A07850] text-white" : "bg-[#F5EDE2] text-[#A07850]"}`}>
-                      {participant?.full_name?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
+                  {isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#4E39E6] rounded-r-full" />
+                  )}
+                  <div className="relative">
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarImage src={participant?.avatar_url || "/placeholder.svg"} />
+                      <AvatarFallback className="text-sm font-semibold bg-gray-100 text-gray-600">
+                        {participant?.full_name?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-sm truncate ${isActive ? "text-white" : "text-[#3B2A1A]"}`}>
-                      {participant?.full_name}
-                    </p>
-                    <p className={`text-xs truncate ${isActive ? "text-white/60" : "text-[#9B8577]"}`}>
-                      {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
+                    <div className="flex items-center justify-between">
+                      <p className={`font-semibold text-sm truncate ${isActive ? "text-gray-900" : "text-gray-700"}`}>
+                        {participant?.full_name}
+                      </p>
+                      <p className="text-[10px] text-gray-400 flex-shrink-0">
+                        {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      The project deck is ready for review.
                     </p>
                   </div>
                 </button>
@@ -245,13 +277,18 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-[#FDFAF6]">
+    <div className="flex h-full bg-white font-sans text-gray-800">
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex md:w-72 flex-col bg-white border-r border-[#E8DDD1]">
+      <div className="hidden md:flex md:w-80 flex-col bg-[#FDFDFD] border-r border-gray-100">
         {/* Sidebar Header */}
-        <div className="px-4 py-3.5 border-b border-[#E8DDD1]">
-          <h2 className="font-['Playfair_Display'] font-semibold text-[#3B2A1A] text-base">Messages</h2>
-          <p className="text-xs text-[#9B8577] mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? "s" : ""}</p>
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#4E39E6] flex items-center justify-center shadow-sm">
+            <MessageSquare className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="font-bold text-gray-900 text-lg leading-tight">Messages</h2>
+            <p className="text-xs text-gray-500 font-medium">Professional Team</p>
+          </div>
         </div>
         <ConversationList />
       </div>
@@ -272,33 +309,60 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
           {selectedConversation && otherParticipant ? (
             <>
               {/* Chat Header */}
-              <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#E8DDD1] flex-shrink-0">
+              <div className="flex items-center gap-4 px-6 py-4 bg-white border-b border-gray-100 flex-shrink-0">
                 <SheetTrigger asChild className="md:hidden">
-                  <button className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F5EDE2] text-[#6B4C30] transition-colors">
+                  <button className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors">
                     <Menu className="h-4 w-4" />
                   </button>
                 </SheetTrigger>
-                <Avatar className="h-9 w-9 flex-shrink-0 ring-2 ring-[#D4B896] ring-offset-1">
-                  <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
-                  <AvatarFallback className="bg-[#F5EDE2] text-[#A07850] font-semibold text-sm">
-                    {otherParticipant.full_name?.[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <p className="font-semibold text-[#3B2A1A] text-sm truncate">{otherParticipant.full_name}</p>
+                
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
+                    <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold text-sm">
+                      {otherParticipant.full_name?.[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 text-sm truncate">{otherParticipant.full_name}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                      <p className="text-xs font-medium text-gray-500">Active Now</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ml-auto flex items-center gap-3">
+                  <div className="hidden md:block relative mr-2">
+                    <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search in conversation..."
+                      className="pl-9 h-9 w-64 text-sm bg-gray-50 border-none rounded-xl focus-visible:ring-1 focus-visible:ring-gray-200 focus-visible:bg-white placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+                  <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
+                    <Video className="h-4 w-4" />
+                  </button>
+                  <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
+                    <Phone className="h-4 w-4" />
+                  </button>
+                  <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
+                    <Info className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto px-4 py-5 min-h-0 space-y-1">
+              <div className="flex-1 overflow-y-auto px-6 py-6 min-h-0 space-y-6">
+
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center space-y-3">
-                      <div className="w-14 h-14 rounded-2xl bg-[#F5EDE2] flex items-center justify-center mx-auto">
-                        <MessageSquare className="h-7 w-7 text-[#A07850] opacity-60" />
+                      <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto">
+                        <MessageSquare className="h-7 w-7 text-gray-400 opacity-60" />
                       </div>
-                      <p className="text-sm font-medium text-[#3B2A1A]">No messages yet</p>
-                      <p className="text-xs text-[#9B8577]">Say hello to start the conversation!</p>
+                      <p className="text-sm font-semibold text-gray-900">No messages yet</p>
+                      <p className="text-xs text-gray-500">Say hello to start the conversation!</p>
                     </div>
                   </div>
                 ) : (
@@ -310,55 +374,123 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                       const isSameAsPrev = prevMsg?.sender_id === msg.sender_id
                       const isSameAsNext = nextMsg?.sender_id === msg.sender_id
                       const isHovered = hoveredMsg === msg.id
+                      const isEditing = editingMessageId === msg.id
+
+                      // Date separator logic
+                      const currentMsgDate = new Date(msg.created_at).toDateString()
+                      const prevMsgDate = prevMsg ? new Date(prevMsg.created_at).toDateString() : null
+                      const showDateSeparator = currentMsgDate !== prevMsgDate
+
+                      let dateLabel = ""
+                      if (showDateSeparator) {
+                        const today = new Date().toDateString()
+                        const yesterday = new Date(Date.now() - 86400000).toDateString()
+                        if (currentMsgDate === today) dateLabel = "Today"
+                        else if (currentMsgDate === yesterday) dateLabel = "Yesterday"
+                        else dateLabel = new Date(msg.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      }
 
                       return (
-                        <div
-                          key={msg.id}
-                          className={`flex items-end gap-2 ${isOwn ? "justify-end" : "justify-start"} ${isSameAsPrev ? "mt-0.5" : "mt-3"}`}
-                          onMouseEnter={() => setHoveredMsg(msg.id)}
-                          onMouseLeave={() => setHoveredMsg(null)}
-                        >
-                          {/* Avatar for other user */}
-                          {!isOwn && (
-                            <div className="flex-shrink-0 w-7">
-                              {!isSameAsNext && (
-                                <Avatar className="h-7 w-7">
-                                  <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
-                                  <AvatarFallback className="text-[10px] bg-[#F5EDE2] text-[#A07850]">
-                                    {otherParticipant.full_name?.[0] || "U"}
-                                  </AvatarFallback>
-                                </Avatar>
+                        <div key={msg.id}>
+                          {showDateSeparator && (
+                            <div className="flex items-center justify-center my-6">
+                              <span className="text-[10px] font-bold tracking-wider text-gray-400 uppercase bg-white px-4">{dateLabel}</span>
+                            </div>
+                          )}
+                          <div
+                            className={`flex items-end gap-3 ${isOwn ? "justify-end" : "justify-start"} ${isSameAsPrev && !showDateSeparator ? "mt-1.5" : "mt-4"}`}
+                            onMouseEnter={() => setHoveredMsg(msg.id)}
+                            onMouseLeave={() => setHoveredMsg(null)}
+                          >
+                            {/* Avatar for other user */}
+                            {!isOwn && (
+                              <div className="flex-shrink-0 w-8 mb-4">
+                                {(!isSameAsNext || showDateSeparator) && (
+                                  <Avatar className="h-8 w-8 shadow-sm">
+                                    <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
+                                    <AvatarFallback className="text-xs font-semibold bg-gray-100 text-gray-600">
+                                      {otherParticipant.full_name?.[0] || "U"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Actions (own messages, not deleted) */}
+                            {isOwn && isHovered && !msg.is_deleted && !isEditing && (
+                              <div className="flex items-center gap-1 mb-4 mr-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingMessageId(msg.id)
+                                    setEditingContent(msg.message)
+                                  }}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-[#4E39E6] hover:bg-indigo-50 transition-all"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => deleteMessage(msg.id)}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Bubble */}
+                            <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
+                              {isEditing ? (
+                                <div className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm flex flex-col gap-2 min-w-[200px]">
+                                  <Input
+                                    value={editingContent}
+                                    onChange={(e) => setEditingContent(e.target.value)}
+                                    className="border-none shadow-none focus-visible:ring-0 p-1 h-auto text-[14px]"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); editMessage(msg.id) }
+                                      if (e.key === "Escape") { setEditingMessageId(null) }
+                                    }}
+                                  />
+                                  <div className="flex justify-end gap-1">
+                                    <button onClick={() => setEditingMessageId(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-md">
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button onClick={() => editMessage(msg.id)} className="p-1.5 text-green-600 hover:bg-green-50 rounded-md">
+                                      <Check className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`px-5 py-3.5 text-[14px] leading-[1.6] break-words shadow-sm ${
+                                    msg.is_deleted
+                                      ? "bg-gray-50 border border-gray-100 text-gray-400 italic rounded-2xl"
+                                      : isOwn
+                                      ? `bg-[#4E39E6] text-white ${isSameAsNext && !showDateSeparator ? "rounded-2xl rounded-br-md" : "rounded-2xl rounded-br-sm"}`
+                                      : `bg-white border border-gray-100 text-gray-800 ${isSameAsNext && !showDateSeparator ? "rounded-2xl rounded-bl-md" : "rounded-2xl rounded-bl-sm"}`
+                                  }`}
+                                >
+                                  {msg.is_deleted ? "User unsent a message" : msg.message}
+                                </div>
+                              )}
+
+                              {/* Timestamp */}
+                              {(!isSameAsNext || isHovered || showDateSeparator) && (
+                                <div className={`flex items-center gap-1.5 mt-1.5 ${isOwn ? "justify-end" : "justify-start"}`}>
+                                  {msg.is_edited && !msg.is_deleted && (
+                                    <span className="text-[10px] text-gray-400 font-medium">(edited)</span>
+                                  )}
+                                  <p className="text-[10px] font-medium text-gray-400">
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                  {isOwn && !msg.is_deleted && (
+                                    <svg className="w-3.5 h-3.5 text-[#4E39E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
                               )}
                             </div>
-                          )}
-
-                          {/* Delete button (own messages) */}
-                          {isOwn && isHovered && (
-                            <button
-                              onClick={() => deleteMessage(msg.id)}
-                              className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[#9B8577] hover:text-rose-500 hover:bg-rose-50 transition-all"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          )}
-
-                          {/* Bubble */}
-                          <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[75%] md:max-w-[65%]`}>
-                            <div
-                              className={`px-3.5 py-2.5 text-sm leading-relaxed break-words ${
-                                isOwn
-                                  ? `bg-[#A07850] text-white ${isSameAsNext ? "rounded-2xl rounded-br-md" : "rounded-2xl rounded-br-sm"}`
-                                  : `bg-white border border-[#E8DDD1] text-[#3B2A1A] shadow-sm ${isSameAsNext ? "rounded-2xl rounded-bl-md" : "rounded-2xl rounded-bl-sm"}`
-                              }`}
-                            >
-                              {msg.message}
-                            </div>
-                            {/* Timestamp — show only on last in group or hovered */}
-                            {(!isSameAsNext || isHovered) && (
-                              <p className={`text-[10px] mt-1 px-1 ${isOwn ? "text-[#9B8577]" : "text-[#9B8577]"}`}>
-                                {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                              </p>
-                            )}
                           </div>
                         </div>
                       )
@@ -369,24 +501,57 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
               </div>
 
               {/* Message Input */}
-              <div className="px-4 py-3 bg-white border-t border-[#E8DDD1] flex-shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 relative">
+              <div className="px-6 py-5 bg-white flex-shrink-0">
+                <div className="border border-gray-200 rounded-2xl overflow-hidden focus-within:ring-1 focus-within:ring-[#4E39E6] focus-within:border-[#4E39E6] transition-all bg-white shadow-sm">
+                  {/* Text Input area */}
+                  <div className="px-4 py-3">
                     <Input
-                      placeholder="Type a message…"
+                      placeholder={`Message #${otherParticipant.full_name}...`}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
-                      className="pr-4 bg-[#F5EDE2] border-[#E8DDD1] rounded-xl text-sm text-[#3B2A1A] placeholder:text-[#C4B5A5] focus-visible:ring-[#A07850] h-10"
+                      className="border-none shadow-none focus-visible:ring-0 p-0 h-10 text-[15px] placeholder:text-gray-400"
                     />
                   </div>
-                  <button
-                    onClick={sendMessage}
-                    disabled={!message.trim()}
-                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[#A07850] text-white hover:bg-[#7A5C38] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
-                  >
-                    <Send className="h-4 w-4" />
-                  </button>
+                  
+                  {/* Toolbar */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 border-t border-gray-100">
+                    <div className="flex items-center gap-1">
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Bold className="h-4 w-4" />
+                      </button>
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Italic className="h-4 w-4" />
+                      </button>
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Link className="h-4 w-4" />
+                      </button>
+                      <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Paperclip className="h-4 w-4" />
+                      </button>
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Smile className="h-4 w-4" />
+                      </button>
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <AtSign className="h-4 w-4" />
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
+                        <Clock className="h-4 w-4" />
+                      </button>
+                      <Button
+                        onClick={sendMessage}
+                        disabled={!message.trim()}
+                        className="bg-[#4E39E6] hover:bg-[#3D2AC9] text-white rounded-xl px-5 h-9 font-medium shadow-sm flex items-center gap-2 disabled:opacity-50"
+                      >
+                        Send
+                        <Send className="h-3.5 w-3.5 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </>

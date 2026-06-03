@@ -50,18 +50,12 @@ export default async function ChatPage({
   const initialConversationId = params.conversation || null
 
   return (
-    <div className="flex h-[calc(100vh)] flex-col">
-      <div className="border-b border-[#E8DDD1] bg-white px-6 py-4">
-        <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#3B2A1A]">Chat</h1>
-        <p className="text-sm text-[#9B8577]">Messages and conversations</p>
-      </div>
-      <div className="flex-1 overflow-hidden">
-        <ChatInterface
-          currentUserId={user.id}
-          initialConversations={conversationsWithProfiles}
-          initialConversationId={initialConversationId}
-        />
-      </div>
+    <div className="flex h-screen flex-col bg-white">
+      <ChatInterface
+        currentUserId={user.id}
+        initialConversations={conversationsWithProfiles}
+        initialConversationId={initialConversationId}
+      />
     </div>
   )
 }
