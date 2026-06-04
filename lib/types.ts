@@ -11,6 +11,8 @@ export interface Profile {
   twitter?: string
   linkedin?: string
   github?: string
+  facebook?: string
+  instagram?: string
   // Company-specific fields
   company_name?: string
   company_registration_number?: string

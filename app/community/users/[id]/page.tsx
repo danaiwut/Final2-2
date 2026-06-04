@@ -5,9 +5,10 @@ import { CommunityChatSidebar } from "@/components/community/community-chat-side
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Globe, Twitter, Linkedin, Github, Users, Briefcase } from "lucide-react"
+import { MapPin, Globe, Twitter, Linkedin, Github, Facebook, Instagram, Users, Briefcase, Mail } from "lucide-react"
 import { FollowButton } from "@/components/community/follow-button"
 import Link from "next/link"
+import { resolveProfileLink, profileLinkLabel } from "@/lib/profile-links"
 
 export default async function UserProfilePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -70,6 +71,31 @@ export default async function UserProfilePage({ params }: { params: { id: string
 
   const isOwnProfile = user.id === params.id
 
+  const socialLinks = [
+    { key: "website", icon: Globe, value: viewedProfile.website },
+    { key: "linkedin", icon: Linkedin, value: viewedProfile.linkedin },
+    { key: "github", icon: Github, value: viewedProfile.github },
+    { key: "facebook", icon: Facebook, value: viewedProfile.facebook },
+    { key: "instagram", icon: Instagram, value: viewedProfile.instagram },
+    { key: "twitter", icon: Twitter, value: viewedProfile.twitter },
+  ]
+    .map((item) => {
+      const href = resolveProfileLink(item.value, item.key)
+      if (!href) return null
+      return {
+        ...item,
+        href,
+        label: profileLinkLabel(item.key),
+      }
+    })
+    .filter(Boolean) as Array<{
+    key: string
+    icon: typeof Globe
+    value?: string
+    href: string
+    label: string
+  }>
+
   return (
     <div className="flex min-h-screen w-full bg-[#FDFAF6]">
       <DashboardSidebar user={user} profile={currentUserProfile} />
@@ -77,96 +103,97 @@ export default async function UserProfilePage({ params }: { params: { id: string
         <main className="min-w-0 w-full flex-1 p-6 md:p-8">
           <div className="mx-auto w-full max-w-5xl space-y-6">
           {/* Profile Header */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col gap-6 md:flex-row md:items-start">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={viewedProfile.avatar_url || "/placeholder.svg"} alt={viewedProfile.full_name} />
-                  <AvatarFallback className="text-2xl">{getInitials(viewedProfile.full_name || "U")}</AvatarFallback>
-                </Avatar>
+          <Card className="overflow-hidden border-[#E8DDD1] bg-white shadow-sm">
+            <div className="h-40 bg-gradient-to-r from-[#8C6741] via-[#B68B61] to-[#E2C39E]" />
+            <CardContent className="px-6 pb-6 pt-0">
+              <div className="-mt-16 space-y-6">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="flex flex-col gap-5 md:flex-row md:items-end">
+                    <Avatar className="h-28 w-28 border-4 border-white shadow-xl ring-4 ring-[#F5EDE2]">
+                      <AvatarImage src={viewedProfile.avatar_url || "/placeholder.svg"} alt={viewedProfile.full_name} />
+                      <AvatarFallback className="bg-[#A07850] text-3xl font-semibold text-white">
+                        {getInitials(viewedProfile.full_name || "U")}
+                      </AvatarFallback>
+                    </Avatar>
 
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h1 className="text-2xl font-bold">{viewedProfile.full_name || "User"}</h1>
-                      {viewedProfile.role && (
-                        <Badge variant={viewedProfile.role === "admin" ? "default" : "secondary"} className="mt-2">
-                          {viewedProfile.role}
-                        </Badge>
-                      )}
-                    </div>
-                    {!isOwnProfile && (
-                      <FollowButton userId={user.id} targetUserId={params.id} isFollowing={isFollowing} />
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm">
-                    <div>
-                      <span className="font-semibold">{followerCount || 0}</span> followers
-                    </div>
-                    <div>
-                      <span className="font-semibold">{followingCount || 0}</span> following
-                    </div>
-                    <div>
-                      <span className="font-semibold">{personas?.length || 0}</span> personas
-                    </div>
-                  </div>
-
-                  {viewedProfile.bio && <p className="text-sm leading-relaxed">{viewedProfile.bio}</p>}
-
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    {viewedProfile.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {viewedProfile.location}
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#A07850]">Profile</p>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h1 className="font-['Playfair_Display'] text-3xl font-bold text-[#3B2A1A]">
+                            {viewedProfile.full_name || "User"}
+                          </h1>
+                          {viewedProfile.role && (
+                            <Badge className="rounded-full bg-[#F5EDE2] px-3 py-1 text-[11px] font-semibold text-[#A07850] hover:bg-[#F5EDE2]">
+                              {viewedProfile.role}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="max-w-2xl text-sm leading-relaxed text-[#6B4C30]">
+                          {viewedProfile.bio || "This profile does not have a bio yet."}
+                        </p>
                       </div>
-                    )}
-                    {viewedProfile.website && (
-                      <a
-                        href={viewedProfile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-foreground"
-                      >
-                        <Globe className="h-4 w-4" />
-                        Website
-                      </a>
-                    )}
-                    {viewedProfile.twitter && (
-                      <a
-                        href={`https://twitter.com/${viewedProfile.twitter}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-foreground"
-                      >
-                        <Twitter className="h-4 w-4" />
-                        Twitter
-                      </a>
-                    )}
-                    {viewedProfile.linkedin && (
-                      <a
-                        href={`https://linkedin.com/in/${viewedProfile.linkedin}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-foreground"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
-                      </a>
-                    )}
-                    {viewedProfile.github && (
-                      <a
-                        href={`https://github.com/${viewedProfile.github}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-foreground"
-                      >
-                        <Github className="h-4 w-4" />
-                        GitHub
-                      </a>
-                    )}
+
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-[#6B4C30]">
+                        {viewedProfile.location && (
+                          <div className="flex items-center gap-1.5 rounded-full bg-[#FAF4EC] px-3 py-1.5">
+                            <MapPin className="h-4 w-4 text-[#A07850]" />
+                            <span>{viewedProfile.location}</span>
+                          </div>
+                        )}
+                        {viewedProfile.email && (
+                          <div className="flex items-center gap-1.5 rounded-full bg-[#FAF4EC] px-3 py-1.5">
+                            <Mail className="h-4 w-4 text-[#A07850]" />
+                            <span>{viewedProfile.email}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 rounded-full bg-[#FAF4EC] px-3 py-1.5">
+                          <Users className="h-4 w-4 text-[#A07850]" />
+                          <span>{personas?.length || 0} personas</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {!isOwnProfile && (
+                    <FollowButton userId={user.id} targetUserId={params.id} isFollowing={isFollowing} />
+                  )}
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl border border-[#F0E6D8] bg-[#FDFAF6] p-4">
+                    <p className="text-xs text-[#9B8577]">Followers</p>
+                    <p className="mt-1 text-2xl font-semibold text-[#3B2A1A]">{followerCount || 0}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#F0E6D8] bg-[#FDFAF6] p-4">
+                    <p className="text-xs text-[#9B8577]">Following</p>
+                    <p className="mt-1 text-2xl font-semibold text-[#3B2A1A]">{followingCount || 0}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#F0E6D8] bg-[#FDFAF6] p-4">
+                    <p className="text-xs text-[#9B8577]">Personas</p>
+                    <p className="mt-1 text-2xl font-semibold text-[#3B2A1A]">{personas?.length || 0}</p>
                   </div>
                 </div>
+
+                {socialLinks.length > 0 && (
+                  <div className="flex flex-wrap gap-3 border-t border-[#F0E6D8] pt-5">
+                    {socialLinks.map(({ key, icon: Icon, href, label, value }) => (
+                      <a
+                        key={key}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full border border-[#E8DDD1] bg-white px-3 py-2 text-sm text-[#6B4C30] shadow-sm transition-colors hover:border-[#CFAE8A] hover:bg-[#FDFAF6]"
+                      >
+                        <Icon className="h-4 w-4 text-[#A07850]" />
+                        <span className="font-medium">{label}</span>
+                        <span className="max-w-[180px] truncate text-xs text-[#9B8577]">
+                          {(value || "").replace(/^https?:\/\//i, "")}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

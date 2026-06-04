@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Send, Search, MessageSquare, Menu, Trash2, Video, Phone, Info, Bold, Italic, Link, Paperclip, Smile, AtSign, Clock, Plus, Pencil, X, Check } from "lucide-react"
+import { Send, Search, MessageSquare, Menu, Trash2, Video, Phone, Bold, Italic, Link as LinkIcon, Paperclip, Smile, AtSign, Clock, Plus, Pencil, X, Check, ArrowUpRight } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 
@@ -34,6 +35,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   const selectedChat = conversations.find((c) => c.id === selectedConversation)
   const otherParticipant =
     selectedChat?.participant1_id === currentUserId ? selectedChat.participant2 : selectedChat?.participant1
+  const profileHref = otherParticipant?.id ? `/community/users/${otherParticipant.id}` : "#"
 
   useEffect(() => {
     const loadConversation = async () => {
@@ -277,7 +279,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   }
 
   return (
-    <div className="flex h-full bg-white font-sans text-gray-800">
+    <div className="flex h-full min-w-0 bg-white font-sans text-gray-800">
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:w-80 flex-col bg-[#FDFDFD] border-r border-gray-100">
         {/* Sidebar Header */}
@@ -316,7 +318,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                   </button>
                 </SheetTrigger>
                 
-                <div className="flex items-center gap-3 min-w-0">
+                <Link href={profileHref} className="flex min-w-0 items-center gap-3 rounded-xl p-1 transition-colors hover:bg-gray-50">
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
                     <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold text-sm">
@@ -330,7 +332,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                       <p className="text-xs font-medium text-gray-500">Active Now</p>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 <div className="ml-auto flex items-center gap-3">
                   <div className="hidden md:block relative mr-2">
@@ -346,9 +348,12 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                   <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
                     <Phone className="h-4 w-4" />
                   </button>
-                  <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
-                    <Info className="h-4 w-4" />
-                  </button>
+                  <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex h-9 rounded-full px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                    <Link href={profileHref}>
+                      <ArrowUpRight className="mr-1.5 h-4 w-4" />
+                      View Profile
+                    </Link>
+                  </Button>
                 </div>
               </div>
 
@@ -524,7 +529,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                         <Italic className="h-4 w-4" />
                       </button>
                       <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
-                        <Link className="h-4 w-4" />
+                        <LinkIcon className="h-4 w-4" />
                       </button>
                       <div className="w-px h-4 bg-gray-300 mx-1"></div>
                       <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">

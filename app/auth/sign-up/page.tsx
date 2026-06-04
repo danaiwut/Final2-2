@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -15,9 +15,29 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordStrength } from "@/components/ui/password-strength"
 
+const gmailOnlySchema = z
+  .string()
+  .email({ message: "Please enter a valid email address." })
+  .refine((email) => /@(gmail\.com|googlemail\.com)$/i.test(email), {
+    message: "Please use a Gmail address.",
+  })
+
+const optionalLinkSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value
+    const trimmed = value.trim()
+    return trimmed === "" ? undefined : trimmed
+  },
+  z.string().url({ message: "Please enter a valid URL." }).optional(),
+)
+
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: gmailOnlySchema,
+  github: optionalLinkSchema,
+  linkedin: optionalLinkSchema,
+  facebook: optionalLinkSchema,
+  instagram: optionalLinkSchema,
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -39,6 +59,10 @@ export default function SignUpPage() {
     defaultValues: {
       fullName: "",
       email: "",
+      github: "",
+      linkedin: "",
+      facebook: "",
+      instagram: "",
       password: "",
       confirmPassword: "",
     },
@@ -49,6 +73,31 @@ export default function SignUpPage() {
 
   const { formState: { isSubmitting, errors } } = form
 
+  useEffect(() => {
+    const supabaseClient = createClient()
+
+    const fillGoogleData = async () => {
+      const { data: { user } } = await supabaseClient.auth.getUser()
+      if (!user) return
+
+      if (user.email) {
+        form.setValue("email", user.email, { shouldValidate: true })
+      }
+
+      const googleName =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        user.user_metadata?.display_name ||
+        ""
+
+      if (googleName && !form.getValues("fullName")) {
+        form.setValue("fullName", googleName, { shouldValidate: true })
+      }
+    }
+
+    fillGoogleData()
+  }, [form])
+
   const onSubmit = async (data: SignUpFormValues) => {
     try {
       const { error } = await supabase.auth.signUp({
@@ -58,6 +107,10 @@ export default function SignUpPage() {
           emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
           data: {
             full_name: data.fullName,
+            github: data.github || null,
+            linkedin: data.linkedin || null,
+            facebook: data.facebook || null,
+            instagram: data.instagram || null,
           },
         },
       })
@@ -143,12 +196,58 @@ export default function SignUpPage() {
                 <Mail className="absolute left-3 h-5 w-5 text-gray-400" />
                 <Input
                   type="email"
-                  placeholder="Email Address"
+                  placeholder="Gmail Address"
                   className="pl-10 h-11 bg-gray-50/50 border-gray-200 focus:bg-white transition-colors"
                   {...form.register("email")}
                 />
               </div>
+              <p className="ml-1 text-[11px] text-gray-400">Use a Gmail address to create your account.</p>
               {errors.email && <p className="text-xs text-red-500 font-medium ml-1">{errors.email.message}</p>}
+            </div>
+
+            <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+              <div className="mb-3">
+                <p className="text-sm font-semibold text-gray-900">Social Links <span className="text-gray-400 font-normal">(optional)</span></p>
+                <p className="text-xs text-gray-500">Add your public profile links so people can find you faster.</p>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Input
+                    type="url"
+                    placeholder="GitHub URL"
+                    className="h-11 bg-white border-gray-200"
+                    {...form.register("github")}
+                  />
+                  {errors.github && <p className="text-xs text-red-500 font-medium ml-1">{errors.github.message}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="url"
+                    placeholder="LinkedIn URL"
+                    className="h-11 bg-white border-gray-200"
+                    {...form.register("linkedin")}
+                  />
+                  {errors.linkedin && <p className="text-xs text-red-500 font-medium ml-1">{errors.linkedin.message}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="url"
+                    placeholder="Facebook URL"
+                    className="h-11 bg-white border-gray-200"
+                    {...form.register("facebook")}
+                  />
+                  {errors.facebook && <p className="text-xs text-red-500 font-medium ml-1">{errors.facebook.message}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="url"
+                    placeholder="Instagram URL"
+                    className="h-11 bg-white border-gray-200"
+                    {...form.register("instagram")}
+                  />
+                  {errors.instagram && <p className="text-xs text-red-500 font-medium ml-1">{errors.instagram.message}</p>}
+                </div>
+              </div>
             </div>
 
             {/* Password Input */}

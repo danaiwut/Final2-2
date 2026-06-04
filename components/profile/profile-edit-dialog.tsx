@@ -33,6 +33,8 @@ export function ProfileEditDialog({ profile, userId, open, onOpenChange }: Profi
     twitter: profile?.twitter || "",
     linkedin: profile?.linkedin || "",
     github: profile?.github || "",
+    facebook: profile?.facebook || "",
+    instagram: profile?.instagram || "",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +125,7 @@ export function ProfileEditDialog({ profile, userId, open, onOpenChange }: Profi
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="twitter">Twitter</Label>
               <Input
@@ -151,6 +153,26 @@ export function ProfileEditDialog({ profile, userId, open, onOpenChange }: Profi
                 placeholder="username"
                 value={formData.github}
                 onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="facebook">Facebook</Label>
+              <Input
+                id="facebook"
+                placeholder="https://facebook.com/yourname"
+                value={formData.facebook}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagram">Instagram</Label>
+              <Input
+                id="instagram"
+                placeholder="https://instagram.com/yourname"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
               />
             </div>
           </div>

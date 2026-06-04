@@ -19,12 +19,16 @@ const toneColors: Record<string, { bg: string; text: string }> = {
   professional: { bg: "bg-blue-50", text: "text-blue-700" },
   friendly: { bg: "bg-green-50", text: "text-green-700" },
   enthusiastic: { bg: "bg-orange-50", text: "text-orange-700" },
-  formal: { bg: "bg-purple-50", text: "text-purple-700" },
   casual: { bg: "bg-pink-50", text: "text-pink-700" },
 }
 
 function getToneStyle(tone: string) {
-  return toneColors[tone?.toLowerCase()] ?? { bg: "bg-[#F5EDE2]", text: "text-[#A07850]" }
+  const normalizedTone = tone?.toLowerCase() === "formal" ? "professional" : tone?.toLowerCase()
+  return toneColors[normalizedTone || ""] ?? { bg: "bg-[#F5EDE2]", text: "text-[#A07850]" }
+}
+
+function getDisplayTone(tone: string) {
+  return tone?.toLowerCase() === "formal" ? "professional" : tone
 }
 
 function getInitials(name: string) {
@@ -87,6 +91,7 @@ export function ActivePersonas({ personas }: ActivePersonasProps) {
           <div className="divide-y divide-[#F0E6D8]">
             {personas.slice(0, 6).map((persona, i) => {
               const toneStyle = getToneStyle(persona.tone)
+              const toneLabel = getDisplayTone(persona.tone)
               const avatarBg = avatarColors[i % avatarColors.length]
               return (
                 <Link
@@ -117,7 +122,7 @@ export function ActivePersonas({ personas }: ActivePersonasProps) {
                     <span
                       className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${toneStyle.bg} ${toneStyle.text}`}
                     >
-                      {persona.tone}
+                      {toneLabel}
                     </span>
                   </div>
 

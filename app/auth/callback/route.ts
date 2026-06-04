@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     if (user) {
       const { data: existingProfile } = await supabase
         .from("profiles")
-        .select("role, full_name, company_name")
+        .select("role, full_name, company_name, website, twitter, linkedin, github, facebook, instagram, email")
         .eq("id", user.id)
         .maybeSingle()
 
@@ -50,9 +50,15 @@ export async function GET(request: NextRequest) {
 
       await supabase.from("profiles").upsert({
         id: user.id,
-        email: user.email,
+        email: user.email || existingProfile?.email,
         full_name: fullName,
         role: inferredRole,
+        website: user.user_metadata?.website || existingProfile?.website || null,
+        twitter: user.user_metadata?.twitter || existingProfile?.twitter || null,
+        linkedin: user.user_metadata?.linkedin || existingProfile?.linkedin || null,
+        github: user.user_metadata?.github || existingProfile?.github || null,
+        facebook: user.user_metadata?.facebook || existingProfile?.facebook || null,
+        instagram: user.user_metadata?.instagram || existingProfile?.instagram || null,
         company_name: existingProfile?.company_name || user.user_metadata?.company_name || null,
         company_registration_number: user.user_metadata?.company_registration_number || null,
         company_website: user.user_metadata?.company_website || null,
