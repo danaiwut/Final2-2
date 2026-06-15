@@ -22,10 +22,8 @@ export default async function EditResumePage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="mx-auto max-w-7xl">
-        <ResumeEditor resume={resume} personas={personas || []} />
-      </div>
+    <div className="flex-1 w-full h-[calc(100vh-2rem)]">
+      <ResumeEditor resume={resume} personas={personas || []} />
     </div>
   )
 }

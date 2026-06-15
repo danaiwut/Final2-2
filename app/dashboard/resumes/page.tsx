@@ -117,18 +117,6 @@ export default async function ResumesPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 overflow-hidden">
                       <h3 className="truncate font-semibold text-[#3B2A1A]">{resume.title}</h3>
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {resume.template_style && (
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${templateClass}`}>
-                            {resume.template_style}
-                          </span>
-                        )}
-                        {resume.color_scheme && (
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
-                            {resume.color_scheme}
-                          </span>
-                        )}
-                      </div>
                     </div>
                   </div>
                   <p className="mt-2 flex items-center gap-1 text-xs text-[#9B8577]">

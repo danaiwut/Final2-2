@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { isAdmin, isSuperAdmin } from "@/lib/auth/admin"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -15,9 +16,10 @@ export async function POST(request: Request) {
     }
 
     // Check if requesting user is admin
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+    const userIsAdmin = await isAdmin(user.id)
+    const userIsSuper = await isSuperAdmin(user.id)
 
-    if (profile?.role !== "admin") {
+    if (!userIsAdmin) {
       return NextResponse.json({ error: "Forbidden - Admin access required" }, { status: 403 })
     }
 
@@ -29,6 +31,11 @@ export async function POST(request: Request) {
 
     if (!["admin", "user", "company"].includes(role)) {
       return NextResponse.json({ error: "Invalid role. Must be 'admin', 'user', or 'company'" }, { status: 400 })
+    }
+
+    // Only super_admin can set role to 'admin'
+    if (role === "admin" && !userIsSuper) {
+      return NextResponse.json({ error: "Forbidden - Only Super Admin can assign the Admin role" }, { status: 403 })
     }
 
     // Update user role

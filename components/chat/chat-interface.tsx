@@ -185,7 +185,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
     <>
       {/* Search and New Message */}
       <div className="p-4 border-b border-gray-100 space-y-4">
-        <Button className="w-full bg-[#4E39E6] hover:bg-[#3D2AC9] text-white rounded-xl h-11 font-medium gap-2 shadow-sm shadow-[#4E39E6]/20">
+        <Button className="w-full bg-[#A07850] hover:bg-[#8A6640] text-white rounded-xl h-11 font-medium gap-2 shadow-sm shadow-[#A07850]/20">
           <Plus className="h-5 w-5" />
           New Message
         </Button>
@@ -198,7 +198,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
           <div className="p-6 text-center">
             <p className="text-sm text-gray-500">No conversations found</p>
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="mt-2 text-xs text-[#4E39E6] hover:underline">
+              <button onClick={() => setSearchQuery("")} className="mt-2 text-xs text-[#A07850] hover:underline">
                 Clear search
               </button>
             )}
@@ -214,17 +214,17 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                   onClick={() => { setSelectedConversation(conv.id); onSelect?.() }}
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-150 text-left relative ${
                     isActive
-                      ? "bg-gray-50 text-gray-900"
-                      : "hover:bg-gray-50 text-gray-700"
+                      ? "bg-[#F5EDE2] text-[#3B2A1A]"
+                      : "hover:bg-[#F5EDE2]/50 text-[#6B4C30]"
                   }`}
                 >
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#4E39E6] rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A07850] rounded-r-full" />
                   )}
                   <div className="relative">
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarImage src={participant?.avatar_url || "/placeholder.svg"} />
-                      <AvatarFallback className="text-sm font-semibold bg-gray-100 text-gray-600">
+                      <AvatarFallback className="text-sm font-semibold bg-[#F5EDE2] text-[#A07850]">
                         {participant?.full_name?.[0] || "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -281,15 +281,15 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
   return (
     <div className="flex h-full min-w-0 bg-white font-sans text-gray-800">
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex md:w-80 flex-col bg-[#FDFDFD] border-r border-gray-100">
+      <div className="hidden md:flex md:w-80 flex-col bg-[#FDFAF6] border-r border-[#E8DDD1]">
         {/* Sidebar Header */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#4E39E6] flex items-center justify-center shadow-sm">
+        <div className="px-6 py-5 border-b border-[#E8DDD1] flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#A07850] flex items-center justify-center shadow-sm">
             <MessageSquare className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-gray-900 text-lg leading-tight">Messages</h2>
-            <p className="text-xs text-gray-500 font-medium">Professional Team</p>
+            <h2 className="font-['Playfair_Display'] font-bold text-[#3B2A1A] text-lg leading-tight">Messages</h2>
+            <p className="text-xs text-[#9B8577] font-medium">Your Conversations</p>
           </div>
         </div>
         <ConversationList />
@@ -311,7 +311,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
           {selectedConversation && otherParticipant ? (
             <>
               {/* Chat Header */}
-              <div className="flex items-center gap-4 px-6 py-4 bg-white border-b border-gray-100 flex-shrink-0">
+              <div className="flex items-center gap-4 px-6 py-4 bg-white border-b border-[#E8DDD1] flex-shrink-0">
                 <SheetTrigger asChild className="md:hidden">
                   <button className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors">
                     <Menu className="h-4 w-4" />
@@ -321,15 +321,15 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                 <Link href={profileHref} className="flex min-w-0 items-center gap-3 rounded-xl p-1 transition-colors hover:bg-gray-50">
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage src={otherParticipant.avatar_url || "/placeholder.svg"} />
-                    <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold text-sm">
+                    <AvatarFallback className="bg-[#F5EDE2] text-[#A07850] font-semibold text-sm">
                       {otherParticipant.full_name?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="font-bold text-gray-900 text-sm truncate">{otherParticipant.full_name}</p>
+                    <p className="font-bold text-[#3B2A1A] text-sm truncate">{otherParticipant.full_name}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                      <p className="text-xs font-medium text-gray-500">Active Now</p>
+                    <p className="text-xs font-medium text-[#9B8577]">Active Now</p>
                     </div>
                   </div>
                 </Link>
@@ -339,7 +339,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                     <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
                     <Input
                       placeholder="Search in conversation..."
-                      className="pl-9 h-9 w-64 text-sm bg-gray-50 border-none rounded-xl focus-visible:ring-1 focus-visible:ring-gray-200 focus-visible:bg-white placeholder:text-gray-400 transition-all"
+                      className="pl-9 h-9 w-64 text-sm bg-[#F5EDE2] border-none rounded-xl focus-visible:ring-1 focus-visible:ring-[#D4B896] focus-visible:bg-white placeholder:text-[#9B8577] transition-all"
                     />
                   </div>
                   <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
@@ -348,7 +348,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                   <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors">
                     <Phone className="h-4 w-4" />
                   </button>
-                  <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex h-9 rounded-full px-3 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                  <Button asChild variant="outline" size="sm" className="hidden md:inline-flex h-9 rounded-full px-3 text-xs font-medium border-[#D4B896] text-[#A07850] hover:bg-[#F5EDE2]">
                     <Link href={profileHref}>
                       <ArrowUpRight className="mr-1.5 h-4 w-4" />
                       View Profile
@@ -429,7 +429,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                                     setEditingMessageId(msg.id)
                                     setEditingContent(msg.message)
                                   }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-[#4E39E6] hover:bg-indigo-50 transition-all"
+                                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-[#A07850] hover:bg-[#F5EDE2] transition-all"
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </button>
@@ -471,7 +471,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                                     msg.is_deleted
                                       ? "bg-gray-50 border border-gray-100 text-gray-400 italic rounded-2xl"
                                       : isOwn
-                                      ? `bg-[#4E39E6] text-white ${isSameAsNext && !showDateSeparator ? "rounded-2xl rounded-br-md" : "rounded-2xl rounded-br-sm"}`
+                                      ? `bg-[#A07850] text-white ${isSameAsNext && !showDateSeparator ? "rounded-2xl rounded-br-md" : "rounded-2xl rounded-br-sm"}`
                                       : `bg-white border border-gray-100 text-gray-800 ${isSameAsNext && !showDateSeparator ? "rounded-2xl rounded-bl-md" : "rounded-2xl rounded-bl-sm"}`
                                   }`}
                                 >
@@ -489,7 +489,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </p>
                                   {isOwn && !msg.is_deleted && (
-                                    <svg className="w-3.5 h-3.5 text-[#4E39E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-3.5 h-3.5 text-[#A07850]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                     </svg>
                                   )}
@@ -507,7 +507,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
 
               {/* Message Input */}
               <div className="px-6 py-5 bg-white flex-shrink-0">
-                <div className="border border-gray-200 rounded-2xl overflow-hidden focus-within:ring-1 focus-within:ring-[#4E39E6] focus-within:border-[#4E39E6] transition-all bg-white shadow-sm">
+                <div className="border border-[#E8DDD1] rounded-2xl overflow-hidden focus-within:ring-1 focus-within:ring-[#A07850] focus-within:border-[#A07850] transition-all bg-white shadow-sm">
                   {/* Text Input area */}
                   <div className="px-4 py-3">
                     <Input
@@ -550,7 +550,7 @@ export function ChatInterface({ currentUserId, initialConversations, initialConv
                       <Button
                         onClick={sendMessage}
                         disabled={!message.trim()}
-                        className="bg-[#4E39E6] hover:bg-[#3D2AC9] text-white rounded-xl px-5 h-9 font-medium shadow-sm flex items-center gap-2 disabled:opacity-50"
+                        className="bg-[#A07850] hover:bg-[#8A6640] text-white rounded-xl px-5 h-9 font-medium shadow-sm flex items-center gap-2 disabled:opacity-50"
                       >
                         Send
                         <Send className="h-3.5 w-3.5 ml-1" />

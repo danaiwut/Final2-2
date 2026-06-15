@@ -179,20 +179,6 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">{persona.description}</p>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <span className="text-sm font-medium">Tone:</span>
-                  <Badge variant="secondary" className="ml-2 capitalize">
-                    {persona.tone}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="text-sm font-medium">Response Style:</span>
-                  <Badge variant="secondary" className="ml-2 capitalize">
-                    {persona.response_style}
-                  </Badge>
-                </div>
-              </div>
             </CardContent>
           </Card>
 

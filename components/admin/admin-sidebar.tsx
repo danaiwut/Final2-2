@@ -26,6 +26,7 @@ import {
   IconUsers,
   IconBriefcase,
   IconGlobe,
+  IconFileText,
   IconSettings,
   IconShield,
   IconShieldExclamation,
@@ -77,11 +78,13 @@ export function AdminSidebar({ user, profile }: AdminSidebarProps) {
       name: "Admin Workspace",
       logo: IconShield,
       plan: "System Controller",
+      url: "/admin",
     },
     {
       name: "Smart Persona",
       logo: IconBrandOpenai,
       plan: "Main Platform",
+      url: "/dashboard",
     },
   ]
 

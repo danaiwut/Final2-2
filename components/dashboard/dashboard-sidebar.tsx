@@ -79,31 +79,39 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
     .slice(0, 2)
 
   // Dynamic workspaces/teams based on role
-  const teams = isCompanyRole
-    ? [
-        {
-          name: displayName,
-          logo: IconBuilding,
-          plan: "Company Account",
-        },
-        {
-          name: "Smart Persona",
-          logo: IconBrandOpenai,
-          plan: "Main Platform",
-        },
-      ]
-    : [
-        {
-          name: displayName,
-          logo: IconUser,
-          plan: "Personal Workspace",
-        },
-        {
-          name: "Smart Persona",
-          logo: IconBrandOpenai,
-          plan: "Main Platform",
-        },
-      ]
+  const teams = []
+
+  if (isAdmin || profile?.role === "super_admin") {
+    teams.push({
+      name: "Admin Workspace",
+      logo: IconShield,
+      plan: "System Controller",
+      url: "/admin",
+    })
+  }
+
+  if (isCompanyRole) {
+    teams.push({
+      name: displayName,
+      logo: IconBuilding,
+      plan: "Company Account",
+      url: "/dashboard",
+    })
+  } else {
+    teams.push({
+      name: displayName,
+      logo: IconUser,
+      plan: "Personal Workspace",
+      url: "/dashboard",
+    })
+  }
+
+  teams.push({
+    name: "Smart Persona",
+    logo: IconBrandOpenai,
+    plan: "Main Platform",
+    url: "/dashboard",
+  })
 
   // Construct items based on role
   const sidebarItems: SidebarItem[] = isCompanyRole

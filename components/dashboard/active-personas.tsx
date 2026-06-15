@@ -90,8 +90,7 @@ export function ActivePersonas({ personas }: ActivePersonasProps) {
         ) : (
           <div className="divide-y divide-[#F0E6D8]">
             {personas.slice(0, 6).map((persona, i) => {
-              const toneStyle = getToneStyle(persona.tone)
-              const toneLabel = getDisplayTone(persona.tone)
+
               const avatarBg = avatarColors[i % avatarColors.length]
               return (
                 <Link
@@ -119,11 +118,7 @@ export function ActivePersonas({ personas }: ActivePersonasProps) {
                     {persona.description && (
                       <p className="mt-0.5 truncate text-xs text-[#9B8577]">{persona.description}</p>
                     )}
-                    <span
-                      className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${toneStyle.bg} ${toneStyle.text}`}
-                    >
-                      {toneLabel}
-                    </span>
+
                   </div>
 
                   <ChevronRight className="h-4 w-4 flex-shrink-0 text-[#C4A882]" />

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { isAdmin } from "@/lib/auth/admin"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -13,15 +14,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // ========== SELECT ==========
-    // ดึงข้อมูล role ของ user จากตาราง profiles เพื่อตรวจสอบสิทธิ์ admin
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+    // Check if the user is an admin
+    const userIsAdmin = await isAdmin(user.id)
 
-    if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
+    if (!userIsAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     const { action, reason } = await request.json()
     const { id: postId } = await params
+
+    // Fetch the post to get the user_id for notification
+    const { data: post } = await supabase.from("community_posts").select("user_id, title").eq("id", postId).single()
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 })
+    }
 
     if (action === "approve") {
       // ========== UPDATE ==========
@@ -64,6 +71,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         console.error("Error rejecting post:", error)
         return NextResponse.json({ error: "Failed to reject post" }, { status: 500 })
       }
+
+      // Create notification for the user
+      await supabase.from("notifications").insert({
+        user_id: post.user_id,
+        type: "post_rejected",
+        title: "Post Rejected",
+        message: `Your post "${post.title}" was rejected by an admin. Reason: ${reason}`,
+        link: `/community/posts/${postId}`,
+      })
 
       return NextResponse.json({ success: true })
     }

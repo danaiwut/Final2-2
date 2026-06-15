@@ -19,13 +19,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
+import { useRouter } from "next/navigation"
+
 interface Team {
   name: string
   logo: React.ElementType
   plan: string
+  url?: string
 }
 
 export function TeamSwitcher({ teams }: { teams: Team[] }) {
+  const router = useRouter()
   const { isMobile } = useSidebar()
   const [isMounted, setIsMounted] = React.useState(false)
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
@@ -90,8 +94,13 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
             {teams.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                onClick={() => {
+                  setActiveTeam(team)
+                  if (team.url) {
+                    router.push(team.url)
+                  }
+                }}
+                className="gap-2 p-2 cursor-pointer"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   <team.logo className="size-3.5 shrink-0" />

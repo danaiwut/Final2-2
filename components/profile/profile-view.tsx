@@ -65,7 +65,7 @@ export function PersonaView({ profile, persona, userId, stats }: ProfileViewProp
     persona?.career?.title ||
     "Build a polished profile that feels like a personal portfolio."
 
-  const displayedTone = persona?.tone === "formal" ? "professional" : persona?.tone
+
   const socialItems = socialLinks
     .map((item) => {
       const value = profile?.[item.valueKey]
@@ -109,16 +109,6 @@ export function PersonaView({ profile, persona, userId, stats }: ProfileViewProp
                         <h1 className="font-['Playfair_Display'] text-3xl font-bold text-[#3B2A1A]">
                           {profile?.full_name || persona?.name || "User"}
                         </h1>
-                        {profile?.role && (
-                          <Badge className="rounded-full bg-[#F5EDE2] px-3 py-1 text-[11px] font-semibold text-[#A07850] hover:bg-[#F5EDE2]">
-                            {profile.role}
-                          </Badge>
-                        )}
-                        {displayedTone && (
-                          <Badge variant="outline" className="rounded-full capitalize">
-                            {displayedTone}
-                          </Badge>
-                        )}
                       </div>
                       <p className="max-w-2xl text-sm leading-relaxed text-[#6B4C30]">
                         {profileSummary}

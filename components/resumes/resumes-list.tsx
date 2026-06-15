@@ -49,10 +49,7 @@ export function ResumesList({ resumes }: ResumesListProps) {
                   <CardTitle className="font-['Playfair_Display'] text-lg text-[#3B2A1A]">
                     {resume.title}
                   </CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <Badge className="bg-[#A07850] text-white text-[11px] uppercase tracking-[0.08em]">
-                      {resume.template_style}
-                    </Badge>
+                    <div className="flex gap-2 mt-2">
                     {resume.is_default && (
                       <Badge variant="outline" className="text-[11px] uppercase tracking-[0.08em]">
                         Default

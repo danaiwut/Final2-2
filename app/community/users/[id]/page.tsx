@@ -10,7 +10,7 @@ import { FollowButton } from "@/components/community/follow-button"
 import Link from "next/link"
 import { resolveProfileLink, profileLinkLabel } from "@/lib/profile-links"
 
-export default async function UserProfilePage({ params }: { params: { id: string } }) {
+export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
 
   const {
@@ -23,8 +23,10 @@ export default async function UserProfilePage({ params }: { params: { id: string
 
   const { data: currentUserProfile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
 
+  const { id } = await params
+
   // Fetch the viewed user's profile
-  const { data: viewedProfile } = await supabase.from("profiles").select("*").eq("id", params.id).maybeSingle()
+  const { data: viewedProfile } = await supabase.from("profiles").select("*").eq("id", id).maybeSingle()
 
   if (!viewedProfile) {
     notFound()
@@ -34,7 +36,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
   const { data: personas } = await supabase
     .from("personas")
     .select("*")
-    .eq("user_id", params.id)
+    .eq("user_id", id)
     .eq("visibility", "published")
     .order("created_at", { ascending: false })
 
@@ -42,7 +44,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
   const { data: posts } = await supabase
     .from("community_posts")
     .select("*")
-    .eq("user_id", params.id)
+    .eq("user_id", id)
     .eq("is_published", true)
     .order("created_at", { ascending: false })
     .limit(5)
@@ -52,14 +54,14 @@ export default async function UserProfilePage({ params }: { params: { id: string
     .from("follows")
     .select("id")
     .eq("follower_id", user.id)
-    .eq("following_id", params.id)
+    .eq("following_id", id)
     .maybeSingle()
 
   const isFollowing = !!followData
 
   // Get follower/following counts
-  const { data: followerCount } = await supabase.rpc("get_follower_count", { user_id: params.id })
-  const { data: followingCount } = await supabase.rpc("get_following_count", { user_id: params.id })
+  const { data: followerCount } = await supabase.rpc("get_follower_count", { user_id: id })
+  const { data: followingCount } = await supabase.rpc("get_following_count", { user_id: id })
 
   const getInitials = (name: string) => {
     return name
@@ -69,7 +71,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
       .toUpperCase()
   }
 
-  const isOwnProfile = user.id === params.id
+  const isOwnProfile = user.id === id
 
   const socialLinks = [
     { key: "website", icon: Globe, value: viewedProfile.website },
@@ -123,11 +125,6 @@ export default async function UserProfilePage({ params }: { params: { id: string
                           <h1 className="font-['Playfair_Display'] text-3xl font-bold text-[#3B2A1A]">
                             {viewedProfile.full_name || "User"}
                           </h1>
-                          {viewedProfile.role && (
-                            <Badge className="rounded-full bg-[#F5EDE2] px-3 py-1 text-[11px] font-semibold text-[#A07850] hover:bg-[#F5EDE2]">
-                              {viewedProfile.role}
-                            </Badge>
-                          )}
                         </div>
                         <p className="max-w-2xl text-sm leading-relaxed text-[#6B4C30]">
                           {viewedProfile.bio || "This profile does not have a bio yet."}
@@ -221,9 +218,6 @@ export default async function UserProfilePage({ params }: { params: { id: string
                         <CardContent>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div>{persona.views_count || 0} views</div>
-                            <Badge variant="secondary" className="capitalize">
-                              {persona.tone}
-                            </Badge>
                           </div>
                         </CardContent>
                       </Card>
