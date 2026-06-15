@@ -11,7 +11,11 @@ export async function updateSession(request: NextRequest) {
 
   // If environment variables are missing, skip auth checks and continue
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.log(" Supabase environment variables not found in middleware, skipping auth")
+    if (process.env.NODE_ENV === "production") {
+      return new NextResponse("Authentication is not configured", { status: 500 })
+    }
+
+    console.warn("Supabase environment variables not found in middleware, skipping auth in development")
     return supabaseResponse
   }
 
@@ -43,7 +47,7 @@ export async function updateSession(request: NextRequest) {
 
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
 
-    if (profile?.role !== "admin") {
+    if (profile?.role !== "admin" && profile?.role !== "super_admin") {
       const url = request.nextUrl.clone()
       url.pathname = "/dashboard"
       return NextResponse.redirect(url)

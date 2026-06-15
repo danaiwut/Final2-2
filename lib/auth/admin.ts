@@ -15,9 +15,7 @@ export async function requireAdmin() {
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
-  const isSuper = profile?.email?.includes("danaiwut") || profile?.email === "jantaneepapawarin@gmail.com"
-
-  if (profile?.role !== "admin" && !isSuper) {
+  if (profile?.role !== "admin" && profile?.role !== "super_admin") {
     redirect("/dashboard")
   }
 
@@ -26,15 +24,14 @@ export async function requireAdmin() {
 
 export async function isAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient()
-  const { data: profile } = await supabase.from("profiles").select("role, email").eq("id", userId).single()
-  const isSuper = profile?.email?.includes("danaiwut") || profile?.email === "jantaneepapawarin@gmail.com"
-  return profile?.role === "admin" || isSuper
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).single()
+  return profile?.role === "admin" || profile?.role === "super_admin"
 }
 
 export async function isSuperAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient()
-  const { data: profile } = await supabase.from("profiles").select("email").eq("id", userId).single()
-  return !!(profile?.email?.includes("danaiwut") || profile?.email === "jantaneepapawarin@gmail.com")
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).single()
+  return profile?.role === "super_admin"
 }
 
 export async function isCompany(userId: string): Promise<boolean> {
