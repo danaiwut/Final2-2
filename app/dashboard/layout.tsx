@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-[#FDFAF6]">
         <DashboardSidebar user={user} profile={profile} />
-        <div className="flex min-w-0 flex-1 flex-col w-full overflow-x-hidden">
+        <div className="flex min-w-0 flex-1 flex-col w-full overflow-x-hidden pt-16 md:pt-0">
           <AdSpace placement="header" />
           
           <div className="flex min-w-0 flex-1 items-start">

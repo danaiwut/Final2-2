@@ -12,13 +12,15 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { useRouter, usePathname } from "next/navigation"
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   IconHome,
   IconChartBar,
@@ -65,6 +67,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   const pathname = usePathname()
   const supabase = createClient()
   const [activeItem, setActiveItem] = useState<string | null>(null)
+  const { setOpenMobile } = useSidebar()
 
   const isCompanyRole = profile?.role === "company"
   const isAdmin = profile?.role === "admin"
@@ -282,7 +285,12 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   const activeItemData = sidebarItems.find((item) => item.id === activeItem)
 
+  useEffect(() => {
+    setOpenMobile(false)
+  }, [pathname, setOpenMobile])
+
   const handleSignOut = async () => {
+    setOpenMobile(false)
     await supabase.auth.signOut()
     router.push("/")
   }
@@ -291,12 +299,14 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
     if (item.hasSubItems) {
       setActiveItem(item.id)
     } else if (item.route) {
+      setOpenMobile(false)
       router.push(item.route)
     }
   }
 
   const handleSubItemClick = (subItem: { id: string; route?: string }) => {
     if (subItem.route) {
+      setOpenMobile(false)
       router.push(subItem.route)
     }
   }
@@ -312,11 +322,13 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   }
 
   return (
-    <div className="sticky top-0 h-screen bg-[#FDFAF6] border-r border-[#E8DDD1]">
+    <>
+      <div className="fixed left-4 top-4 z-50 md:hidden">
+        <SidebarTrigger className="h-11 w-11 rounded-full border border-[#E8DDD1] bg-[#FDFAF6] text-[#3B2A1A] shadow-lg shadow-[#3B2A1A]/10" />
+      </div>
       <Sidebar
         side="left"
         variant="sidebar"
-        collapsible="none"
         className="h-full w-64 border-r border-[#E8DDD1] bg-[#FDFAF6]"
       >
         {!activeItem ? (
@@ -378,7 +390,10 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             <SidebarFooter className="border-t border-[#E8DDD1] p-3 bg-[#FDFAF6]">
               <div
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#F0E6D8] transition-colors cursor-pointer"
-                onClick={() => router.push("/dashboard/profile")}
+                onClick={() => {
+                  setOpenMobile(false)
+                  router.push("/dashboard/profile")
+                }}
               >
                 <Avatar className="h-8 w-8 rounded-full bg-[#D4B896]">
                   <AvatarFallback className="rounded-full text-xs font-semibold text-[#3B2A1A]">
@@ -453,6 +468,6 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
           )
         )}
       </Sidebar>
-    </div>
+    </>
   )
 }

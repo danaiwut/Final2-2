@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-[#FDFAF6]">
         <AdminSidebar user={user} profile={profile} />
-        <div className="flex min-w-0 flex-1 flex-col w-full">
+        <div className="flex min-w-0 flex-1 flex-col w-full pt-16 md:pt-0">
           <main className="min-w-0 flex-1 w-full">{children}</main>
         </div>
       </div>

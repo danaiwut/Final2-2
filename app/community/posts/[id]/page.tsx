@@ -97,7 +97,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="flex min-h-screen w-full bg-[#FDFAF6]">
       <DashboardSidebar user={user} profile={profile} />
-      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden pt-16 md:pt-0">
         <main className="min-w-0 w-full flex-1 p-6 md:p-8">
           <div className="mx-auto w-full max-w-4xl">
           <PostDetail post={post} comments={comments} currentUserId={user.id} isLiked={!!likeData} />
